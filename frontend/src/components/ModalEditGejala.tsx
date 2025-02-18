@@ -1,47 +1,62 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const ModalTambahGejala = ({ isOpen, onClose, onSave }) => {
+const ModalEditGejala = ({ isOpen, onClose, onSave, data }) => {
   const [formData, setFormData] = useState({
+    id_gejala: "",
     kode_gejala: "",
     nama_gejala: "",
     bobot: "",
   });
 
+  // Mengisi data saat modal terbuka
+  useEffect(() => {
+    if (isOpen && data) {
+      setFormData({
+        id_gejala: data.id_gejala,
+        kode_gejala: data.kode_gejala,
+        nama_gejala: data.nama_gejala,
+        bobot: data.bobot.toString(), // Konversi angka ke string untuk input
+      });
+    }
+  }, [isOpen, data]); // Tambahkan isOpen agar form selalu direset saat modal dibuka kembali
+
   if (!isOpen) return null;
 
   const handleSubmit = () => {
     // Validasi
-    if (!formData.nama_gejala || !formData.bobot) {
-      return alert("Nama gejala dan bobot harus diisi!");
-    }
-    
-    if (formData.bobot < 0 || formData.bobot > 1) {
-      return alert("Bobot harus antara 0 dan 1");
+    if (!formData.nama_gejala.trim()) {
+      return alert("Nama gejala harus diisi!");
     }
 
-    onSave(formData);
-    setFormData({ kode_gejala: "", nama_gejala: "", bobot: "" });
+    if (formData.bobot === "") {
+      return alert("Bobot harus diisi!");
+    }
+
+    const bobotValue = parseFloat(formData.bobot);
+    if (isNaN(bobotValue) || bobotValue < 0 || bobotValue > 1) {
+      return alert("Bobot harus berupa angka antara 0 dan 1");
+    }
+
+    onSave({ ...formData, bobot: bobotValue }); // Kirim bobot sebagai angka
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
       <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
         <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
-          Tambah Gejala
+          Edit Gejala
         </h2>
 
-        {/* Kode Gejala */}
+        {/* Kode Gejala (Readonly) */}
         <div className="mb-3">
           <label className="block text-gray-700 font-medium mb-1">
             Kode Gejala
           </label>
           <input
-            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F81C7]"
+            className="w-full p-2 border rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
             type="text"
             value={formData.kode_gejala}
-            onChange={(e) =>
-              setFormData({ ...formData, kode_gejala: e.target.value })
-            }
+            readOnly
           />
         </div>
 
@@ -63,9 +78,7 @@ const ModalTambahGejala = ({ isOpen, onClose, onSave }) => {
 
         {/* Bobot Gejala */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">
-            Bobot
-          </label>
+          <label className="block text-gray-700 font-medium mb-1">Bobot</label>
           <input
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F81C7]"
             type="number"
@@ -100,4 +113,4 @@ const ModalTambahGejala = ({ isOpen, onClose, onSave }) => {
   );
 };
 
-export default ModalTambahGejala;
+export default ModalEditGejala;

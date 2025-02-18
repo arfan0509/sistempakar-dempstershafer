@@ -1,48 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const ModalTambahPenyakit = ({ isOpen, onClose, onSave }) => {
+const ModalEditPenyakit = ({ isOpen, onClose, onSave, data }) => {
   const [formData, setFormData] = useState({
+    id_penyakit: "",
     kode_penyakit: "",
     nama_penyakit: "",
     deskripsi: "",
     solusi: "",
   });
 
+  // Mengisi data saat modal terbuka
+  useEffect(() => {
+    if (data) {
+      setFormData({
+        id_penyakit: data.id_penyakit,
+        kode_penyakit: data.kode_penyakit,
+        nama_penyakit: data.nama_penyakit,
+        deskripsi: data.deskripsi,
+        solusi: data.solusi,
+      });
+    }
+  }, [data]);
+
   if (!isOpen) return null;
 
   const handleSubmit = () => {
     onSave(formData);
-    setFormData({
-      kode_penyakit: "",
-      nama_penyakit: "",
-      deskripsi: "",
-      solusi: "",
-    });
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
       <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
         <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
-          Tambah Penyakit
+          Edit Penyakit
         </h2>
 
-        {/* Input Kode Penyakit */}
+        {/* Kode Penyakit (Readonly) */}
         <div className="mb-3">
           <label className="block text-gray-700 font-medium mb-1">
             Kode Penyakit
           </label>
           <input
-            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F81C7]"
+            className="w-full p-2 border rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
             type="text"
             value={formData.kode_penyakit}
-            onChange={(e) =>
-              setFormData({ ...formData, kode_penyakit: e.target.value })
-            }
+            readOnly
           />
         </div>
 
-        {/* Input Nama Penyakit */}
+        {/* Nama Penyakit */}
         <div className="mb-3">
           <label className="block text-gray-700 font-medium mb-1">
             Nama Penyakit
@@ -50,6 +56,7 @@ const ModalTambahPenyakit = ({ isOpen, onClose, onSave }) => {
           <input
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F81C7]"
             type="text"
+            placeholder="Masukkan nama penyakit"
             value={formData.nama_penyakit}
             onChange={(e) =>
               setFormData({ ...formData, nama_penyakit: e.target.value })
@@ -57,7 +64,7 @@ const ModalTambahPenyakit = ({ isOpen, onClose, onSave }) => {
           />
         </div>
 
-        {/* Input Deskripsi Penyakit */}
+        {/* Deskripsi Penyakit */}
         <div className="mb-3">
           <label className="block text-gray-700 font-medium mb-1">
             Deskripsi Penyakit
@@ -65,6 +72,7 @@ const ModalTambahPenyakit = ({ isOpen, onClose, onSave }) => {
           <textarea
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F81C7] resize-none"
             rows={3}
+            placeholder="Masukkan deskripsi penyakit"
             value={formData.deskripsi}
             onChange={(e) =>
               setFormData({ ...formData, deskripsi: e.target.value })
@@ -72,7 +80,7 @@ const ModalTambahPenyakit = ({ isOpen, onClose, onSave }) => {
           />
         </div>
 
-        {/* Input Solusi Penyakit */}
+        {/* Solusi Penyakit */}
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-1">
             Solusi Penyakit
@@ -80,6 +88,7 @@ const ModalTambahPenyakit = ({ isOpen, onClose, onSave }) => {
           <textarea
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F81C7] resize-none"
             rows={3}
+            placeholder="Masukkan solusi penyakit"
             value={formData.solusi}
             onChange={(e) =>
               setFormData({ ...formData, solusi: e.target.value })
@@ -107,4 +116,4 @@ const ModalTambahPenyakit = ({ isOpen, onClose, onSave }) => {
   );
 };
 
-export default ModalTambahPenyakit;
+export default ModalEditPenyakit;

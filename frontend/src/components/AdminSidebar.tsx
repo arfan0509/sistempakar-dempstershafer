@@ -9,7 +9,7 @@ import {
   FiClock,
   FiLogOut,
 } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Sidebar = ({
   isOpen,
@@ -20,6 +20,13 @@ const Sidebar = ({
 }) => {
   const [isMasterOpen, setIsMasterOpen] = useState(false);
   const toggleMaster = () => setIsMasterOpen(!isMasterOpen);
+  const navigate = useNavigate();
+
+  // Fungsi Logout
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // Hapus token dari localStorage
+    navigate("/");
+  };
 
   return (
     <>
@@ -50,7 +57,7 @@ const Sidebar = ({
         <ul>
           <li>
             <Link
-              to="/dashboard"
+              to="/admin-dashboard"
               className="block p-2 hover:bg-[#2E5077] flex items-center"
               onClick={onClose}
             >
@@ -101,14 +108,21 @@ const Sidebar = ({
             <Link
               to="/data-relasi-gejala"
               className="flex items-center text-white w-full"
+              onClick={onClose} // Menutup sidebar setelah diklik
             >
               <FiBookOpen className="mr-2" /> Rule Dempster Shafer
             </Link>
           </li>
+
           <li className="p-2 hover:bg-[#2E5077] flex items-center">
             <FiClock className="mr-2" /> Riwayat
           </li>
-          <li className="p-2 hover:bg-[#2E5077] flex items-center">
+
+          {/* Tombol Logout */}
+          <li
+            className="p-2 hover:bg-[#2E5077] flex items-center cursor-pointer"
+            onClick={handleLogout}
+          >
             <FiLogOut className="mr-2" /> Logout
           </li>
         </ul>

@@ -1,99 +1,208 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { FiEdit, FiTrash, FiPlus } from "react-icons/fi";
-import ModalTambahRelasi from "../components/ModalTambahRelasi"; // Modal untuk tambah relasi
+import ModalTambahRelasi from "../components/ModalTambahRelasi";
+import ModalEditRelasi from "../components/ModalEditRelasi";
+import ModalKonfirmasi from "../components/ModalKonfirmasi"; // Import ModalKonfirmasi
 
 const DataRelasiGejala = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [relasiData, setRelasiData] = useState([
-    {
-      id: 1,
-      kodeGejala: "G001",
-      namaGejala: "Sering haus dan lapar berlebihan",
-      relasi: [
-        { kodePenyakit: "P001", namaPenyakit: "Diabetes Mellitus", bobot: 0.8 },
-        { kodePenyakit: "P002", namaPenyakit: "Hipertensi", bobot: 0.5 },
-      ],
-    },
-    {
-      id: 2,
-      kodeGejala: "G002",
-      namaGejala: "Tekanan darah sering tinggi",
-      relasi: [
-        { kodePenyakit: "P002", namaPenyakit: "Hipertensi", bobot: 0.9 },
-      ],
-    },
-    {
-      id: 3,
-      kodeGejala: "G003",
-      namaGejala: "Mual dan muntah secara tiba-tiba",
-      relasi: [
-        { kodePenyakit: "P003", namaPenyakit: "Gagal Ginjal", bobot: 0.7 },
-      ],
-    },
-  ]);
+  const [isModalTambahOpen, setIsModalTambahOpen] = useState(false);
+  const [isModalEditOpen, setIsModalEditOpen] = useState(false);
+  const [relasiData, setRelasiData] = useState([]);
+  const [penyakitData, setPenyakitData] = useState([]);
+  const [gejalaData, setGejalaData] = useState([]);
+  const [selectedRelasi, setSelectedRelasi] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [gejalaToDelete, setGejalaToDelete] = useState(null); // State untuk gejala yang akan dihapus
 
-  // Fungsi untuk menambahkan data relasi baru
-  const handleAddData = (kodeGejala, namaGejala, relasi) => {
-    const newEntry = {
-      id: relasiData.length + 1,
-      kodeGejala,
-      namaGejala,
-      relasi,
+  // ✅ Ambil Data Relasi, Penyakit, dan Gejala
+  const fetchData = async () => {
+    try {
+      const relasiResponse = await axios.get(
+        "http://localhost:5000/api/relasi"
+      );
+      const penyakitResponse = await axios.get(
+        "http://localhost:5000/api/penyakit"
+      );
+      const gejalaResponse = await axios.get(
+        "http://localhost:5000/api/gejala"
+      );
+
+      setRelasiData(relasiResponse.data);
+      setPenyakitData(penyakitResponse.data);
+      setGejalaData(gejalaResponse.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // ✅ Tambah Data Relasi
+  const handleAddData = async (newData) => {
+    try {
+      const gejala = gejalaData.find(
+        (gejala) => gejala.id_gejala === newData.id_gejala
+      );
+      if (gejala) {
+        newData.bobot = gejala.bobot; // Ambil bobot dari gejala yang sesuai
+      }
+
+      const headers = getAuthHeaders();
+      if (!headers) return;
+
+      await axios.post(
+        "http://localhost:5000/api/relasi/tambah",
+        newData,
+        headers
+      );
+      fetchData();
+      setIsModalTambahOpen(false);
+    } catch (error) {
+      console.error(
+        "Error adding relasi:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
+  // ✅ Hapus Data Relasi
+  const handleDelete = async (id) => {
+    try {
+      const headers = getAuthHeaders();
+      if (!headers) return;
+      await axios.delete(
+        `http://localhost:5000/api/relasi/hapus/${id}`,
+        headers
+      );
+      fetchData();
+      setIsDeleteModalOpen(false); // Close the delete modal
+    } catch (error) {
+      console.error(
+        "Error deleting relasi:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
+  // ✅ Edit Data Relasi
+  const handleEdit = async (updatedData) => {
+    try {
+      const gejala = gejalaData.find(
+        (gejala) => gejala.id_gejala === updatedData.id_gejala
+      );
+      if (gejala) {
+        updatedData.bobot = gejala.bobot; // Ambil bobot dari gejala yang sesuai
+      }
+
+      const headers = getAuthHeaders();
+      if (!headers) return;
+
+      await axios.put(
+        `http://localhost:5000/api/relasi/update/${updatedData.id_relasi}`,
+        updatedData,
+        headers
+      );
+      fetchData();
+      setIsModalEditOpen(false);
+    } catch (error) {
+      console.error(
+        "Error updating relasi:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
+  // Mencari nama penyakit berdasarkan id_penyakit
+  const getPenyakitName = (id_penyakit) => {
+    const penyakit = penyakitData.find(
+      (penyakit) => penyakit.id_penyakit === id_penyakit
+    );
+    return penyakit
+      ? `${penyakit.kode_penyakit} | ${penyakit.nama_penyakit}`
+      : "-";
+  };
+
+  // Mencari nama gejala berdasarkan id_gejala
+  const getGejalaName = (id_gejala) => {
+    const gejala = gejalaData.find((gejala) => gejala.id_gejala === id_gejala);
+    return gejala ? `${gejala.kode_gejala} | ${gejala.nama_gejala}` : "-";
+  };
+
+  // ✅ Fungsi untuk mendapatkan token autentikasi
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Token tidak ditemukan, silakan login ulang!");
+      return null;
+    }
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     };
-    setRelasiData([...relasiData, newEntry]);
   };
 
   return (
-    <div className="p-6 w-full">
+    <div className="p-2 pt-4 w-full">
       <h1 className="text-2xl font-semibold text-gray-800 mb-4">
-        Relasi Gejala dan Penyakit
+        Data Relasi Gejala
       </h1>
 
       {/* Tombol Tambah Data */}
       <button
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => setIsModalTambahOpen(true)}
         className="mb-4 bg-[#4F81C7] text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-[#2E5077] transition"
       >
-        <FiPlus /> Tambah Relasi
+        <FiPlus /> Tambah Data
       </button>
 
-      {/* Wrapper untuk tabel */}
+      {/* Tabel Relasi */}
       <div className="relative overflow-x-auto md:overflow-visible shadow-md sm:rounded-lg">
-        <table className="w-full min-w-full text-sm text-center text-gray-500 dark:text-gray-400 border-collapse">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table className="w-full text-sm text-center text-gray-500 border-collapse">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
+              <th className="px-4 py-3 border">No</th>
+              <th className="px-4 py-3 border">Kode Penyakit</th>
               <th className="px-4 py-3 border">Kode Gejala</th>
-              <th className="px-4 py-3 border">Nama Gejala</th>
-              <th className="px-4 py-3 border">Kode Penyakit - Nama Penyakit</th>
-              <th className="px-4 py-3 border">Bobot Gejala</th>
+              <th className="px-4 py-3 border">Bobot</th>
               <th className="px-4 py-3 border text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
-            {relasiData.map((item) => (
+            {relasiData.map((relasi, index) => (
               <tr
-                key={item.id}
-                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                key={relasi.id_relasi}
+                className="bg-white border-b hover:bg-gray-50"
               >
-                <td className="px-4 py-4 border align-top">{item.kodeGejala}</td>
-                <td className="px-4 py-4 border align-top">{item.namaGejala}</td>
-                <td className="px-4 py-4 border align-top">
-                  {item.relasi.map((rel, i) => (
-                    <div key={i}>
-                      {rel.kodePenyakit} - {rel.namaPenyakit}
-                    </div>
-                  ))}
+                <td className="px-4 py-4 border">{index + 1}</td>
+                <td className="px-4 py-4 border">
+                  {getPenyakitName(relasi.id_penyakit)}
                 </td>
-                <td className="px-4 py-4 border align-top">
-                  {item.relasi.map((rel, i) => (
-                    <div key={i}>{rel.bobot}</div>
-                  ))}
+                <td className="px-4 py-4 border">
+                  {getGejalaName(relasi.id_gejala)}
                 </td>
-                <td className="px-4 py-4 border align-top flex flex-col items-center gap-2">
-                  <button className="border border-[#4F81C7] text-[#4F81C7] px-3 py-2 rounded-md w-24 h-7 flex items-center justify-center gap-1 hover:bg-[#4F81C7] hover:text-white transition">
+                <td className="px-4 py-4 border">{relasi.bobot}</td>
+                <td className="px-4 py-4 border flex flex-col items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setSelectedRelasi(relasi);
+                      setIsModalEditOpen(true);
+                    }}
+                    className="border border-blue-500 text-blue-500 px-3 py-2 rounded-md w-24 h-7 flex items-center justify-center gap-1 hover:bg-blue-500 hover:text-white transition"
+                  >
                     <FiEdit /> Edit
                   </button>
-                  <button className="border border-red-700 text-red-700 px-3 py-2 rounded-md w-24 h-7 flex items-center justify-center gap-1 hover:bg-red-700 hover:text-white transition">
+                  <button
+                    onClick={() => {
+                      setGejalaToDelete(relasi); // Set the selected relasi for deletion
+                      setIsDeleteModalOpen(true); // Open the delete confirmation modal
+                    }}
+                    className="border border-red-700 text-red-700 px-3 py-2 rounded-md w-24 h-7 flex items-center justify-center gap-1 hover:bg-red-700 hover:text-white transition"
+                  >
                     <FiTrash /> Hapus
                   </button>
                 </td>
@@ -103,12 +212,32 @@ const DataRelasiGejala = () => {
         </table>
       </div>
 
-      {/* Modal Tambah Relasi */}
+      {/* Modal Tambah Data */}
       <ModalTambahRelasi
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isModalTambahOpen}
+        onClose={() => setIsModalTambahOpen(false)}
         onSave={handleAddData}
       />
+
+      {/* Modal Edit Data */}
+      {selectedRelasi && (
+        <ModalEditRelasi
+          isOpen={isModalEditOpen}
+          onClose={() => setIsModalEditOpen(false)}
+          onSave={handleEdit}
+          data={selectedRelasi}
+        />
+      )}
+
+      {/* Modal Konfirmasi Hapus */}
+      {gejalaToDelete && (
+        <ModalKonfirmasi
+          isOpen={isDeleteModalOpen}
+          message={`Apakah Anda yakin ingin menghapus relasi antara penyakit dan gejala ini?`}
+          onConfirm={() => handleDelete(gejalaToDelete.id_relasi)}
+          onCancel={() => setIsDeleteModalOpen(false)} // Close the modal if cancel is clicked
+        />
+      )}
     </div>
   );
 };

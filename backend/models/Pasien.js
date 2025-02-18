@@ -4,7 +4,11 @@ const db = require("../config/database");
 const Pasien = db.define(
   "pasien",
   {
-    id_pasien: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id_pasien: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     nama: { type: DataTypes.STRING, allowNull: false },
     alamat: { type: DataTypes.STRING, allowNull: false },
     no_telp: { type: DataTypes.STRING, allowNull: false },

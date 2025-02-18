@@ -1,3 +1,4 @@
+const { Op } = require("sequelize"); // Import Op
 const Gejala = require("../models/Gejala");
 
 // ✅ Fungsi untuk generate kode gejala jika tidak diisi oleh admin
@@ -9,7 +10,12 @@ const generateKodeGejala = async () => {
 // ✅ Tambah Gejala (Cek Duplikasi)
 exports.tambahGejala = async (req, res) => {
   try {
-    let { kode_gejala, nama_gejala } = req.body;
+    let { kode_gejala, nama_gejala, bobot } = req.body;
+
+    // Pastikan bobot ada dan valid
+    if (bobot < 0 || bobot > 1 || !bobot) {
+      return res.status(400).json({ message: "Bobot harus antara 0 dan 1" });
+    }
 
     // 🔍 Cek apakah gejala dengan nama atau kode sudah ada
     const existingGejala = await Gejala.findOne({
@@ -34,7 +40,7 @@ exports.tambahGejala = async (req, res) => {
     }
 
     // ✅ Tambahkan gejala baru
-    const gejala = await Gejala.create({ kode_gejala, nama_gejala });
+    const gejala = await Gejala.create({ kode_gejala, nama_gejala, bobot });
     res.json({ message: "Gejala berhasil ditambahkan", gejala });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -55,10 +61,25 @@ exports.getGejala = async (req, res) => {
 exports.updateGejala = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nama_gejala } = req.body;
+    const { nama_gejala, bobot } = req.body;
 
+    // Pastikan bobot ada dan valid
+    if (bobot < 0 || bobot > 1 || !bobot) {
+      return res.status(400).json({ message: "Bobot harus antara 0 dan 1" });
+    }
+
+    // Cek apakah nama gejala yang baru sudah ada
+    const existingGejala = await Gejala.findOne({
+      where: { nama_gejala, id_gejala: { [Op.ne]: id } },
+    });
+
+    if (existingGejala) {
+      return res.status(400).json({ message: "Nama gejala sudah digunakan" });
+    }
+
+    // Update gejala
     const gejala = await Gejala.update(
-      { nama_gejala },
+      { nama_gejala, bobot },
       { where: { id_gejala: id } }
     );
 
