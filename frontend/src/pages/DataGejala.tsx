@@ -11,18 +11,18 @@ const DataGejala = () => {
   const [gejalaData, setGejalaData] = useState([]);
   const [selectedGejala, setSelectedGejala] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [gejalaToDelete, setGejalaToDelete] = useState(null); // State for the gejala to delete
+  const [gejalaToDelete, setGejalaToDelete] = useState(null); // State for delete modal
 
-  // ✅ Fungsi untuk mendapatkan token autentikasi
+  // ✅ Fungsi untuk mendapatkan accessToken autentikasi
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("accessToken"); // Gunakan key yang benar
-    if (!token) {
+    const accessToken = localStorage.getItem("accessToken"); // Gunakan 'accessToken' yang konsisten
+    if (!accessToken) {
       console.error("Token tidak ditemukan, silakan login ulang!");
       return null;
     }
     return {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
     };
@@ -32,7 +32,7 @@ const DataGejala = () => {
   const fetchGejala = async () => {
     try {
       const headers = getAuthHeaders();
-      if (!headers) return; // Jika token tidak ada, hentikan proses
+      if (!headers) return;
       const response = await axios.get(
         "http://localhost:5000/api/gejala",
         headers
@@ -42,7 +42,6 @@ const DataGejala = () => {
       if (error.response) {
         if (error.response.status === 401) {
           console.error("Unauthorized: Token mungkin sudah kadaluwarsa.");
-          // Optional: Tambahkan logika untuk refresh token di sini
         } else {
           console.error("Error fetching gejala data:", error.response.data);
         }
@@ -69,10 +68,7 @@ const DataGejala = () => {
       fetchGejala();
       setIsModalTambahOpen(false);
     } catch (error) {
-      console.error(
-        "Error adding gejala:",
-        error.response?.data || error.message
-      );
+      console.error("Error adding gejala:", error.response?.data || error.message);
     }
   };
 
@@ -86,12 +82,9 @@ const DataGejala = () => {
         headers
       );
       fetchGejala();
-      setIsDeleteModalOpen(false); // Close the delete modal
+      setIsDeleteModalOpen(false);
     } catch (error) {
-      console.error(
-        "Error deleting gejala:",
-        error.response?.data || error.message
-      );
+      console.error("Error deleting gejala:", error.response?.data || error.message);
     }
   };
 
@@ -108,10 +101,7 @@ const DataGejala = () => {
       fetchGejala();
       setIsModalEditOpen(false);
     } catch (error) {
-      console.error(
-        "Error updating gejala:",
-        error.response?.data || error.message
-      );
+      console.error("Error updating gejala:", error.response?.data || error.message);
     }
   };
 
@@ -167,8 +157,8 @@ const DataGejala = () => {
                   </button>
                   <button
                     onClick={() => {
-                      setGejalaToDelete(gejala); // Set the selected gejala for deletion
-                      setIsDeleteModalOpen(true); // Open the delete confirmation modal
+                      setGejalaToDelete(gejala);
+                      setIsDeleteModalOpen(true);
                     }}
                     className="border border-red-700 text-red-700 px-3 py-2 rounded-md w-24 h-7 flex items-center justify-center gap-1 hover:bg-red-700 hover:text-white transition"
                   >
@@ -204,7 +194,7 @@ const DataGejala = () => {
           isOpen={isDeleteModalOpen}
           message={`Apakah Anda yakin ingin menghapus gejala ${gejalaToDelete.nama_gejala}?`}
           onConfirm={() => handleDelete(gejalaToDelete.id_gejala)}
-          onCancel={() => setIsDeleteModalOpen(false)} // Close the modal if cancel is clicked
+          onCancel={() => setIsDeleteModalOpen(false)}
         />
       )}
     </div>

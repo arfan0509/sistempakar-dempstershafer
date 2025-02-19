@@ -30,7 +30,7 @@ const LandingPage: React.FC = () => {
       <div className="absolute inset-0 bg-black opacity-40"></div>
 
       {/* Konten Utama */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4 pt-44">
+      <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4">
         <h1 className="text-5xl font-bold mb-6">
           Selamat Datang di Sistem Pakar Identifikasi Penyakit Kucing
         </h1>

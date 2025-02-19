@@ -131,16 +131,16 @@ const DataRelasiGejala = () => {
     return gejala ? `${gejala.kode_gejala} | ${gejala.nama_gejala}` : "-";
   };
 
-  // ✅ Fungsi untuk mendapatkan token autentikasi
+  // ✅ Fungsi untuk mendapatkan accessToken autentikasi
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("Token tidak ditemukan, silakan login ulang!");
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      console.error("accessToken tidak ditemukan, silakan login ulang!");
       return null;
     }
     return {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
     };

@@ -3,22 +3,26 @@ import axios from "axios";
 import { FiEdit, FiTrash, FiPlus } from "react-icons/fi";
 import ModalTambahPenyakit from "../components/ModalTambahPenyakit";
 import ModalEditPenyakit from "../components/ModalEditPenyakit";
-import ModalKonfirmasi from "../components/ModalKonfirmasi";  // Import ModalKonfirmasi
+import ModalKonfirmasi from "../components/ModalKonfirmasi"; // Import ModalKonfirmasi
 
 const DataPenyakit = () => {
   const [isModalTambahOpen, setIsModalTambahOpen] = useState(false);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
   const [penyakitData, setPenyakitData] = useState([]);
   const [selectedPenyakit, setSelectedPenyakit] = useState(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State for delete modal
-  const [penyakitToDelete, setPenyakitToDelete] = useState(null); // State for the penyakit to delete
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [penyakitToDelete, setPenyakitToDelete] = useState(null);
 
-  // ✅ Fungsi untuk mendapatkan token autentikasi
+  // ✅ Fungsi untuk mendapatkan accessToken autentikasi
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
+    const accessToken = localStorage.getItem("accessToken"); // Gunakan 'accessToken' yang konsisten
+    if (!accessToken) {
+      console.error("Token tidak ditemukan, silakan login ulang!");
+      return null;
+    }
     return {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
     };
@@ -27,7 +31,12 @@ const DataPenyakit = () => {
   // ✅ Ambil Data Penyakit dari Backend
   const fetchPenyakit = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/penyakit", getAuthHeaders());
+      const headers = getAuthHeaders();
+      if (!headers) return;
+      const response = await axios.get(
+        "http://localhost:5000/api/penyakit",
+        headers
+      );
       setPenyakitData(response.data);
     } catch (error) {
       console.error("Error fetching penyakit data:", error.response?.data || error.message);
@@ -41,7 +50,13 @@ const DataPenyakit = () => {
   // ✅ Tambah Data Penyakit
   const handleAddData = async (newData) => {
     try {
-      await axios.post("http://localhost:5000/api/penyakit/tambah", newData, getAuthHeaders());
+      const headers = getAuthHeaders();
+      if (!headers) return;
+      await axios.post(
+        "http://localhost:5000/api/penyakit/tambah",
+        newData,
+        headers
+      );
       fetchPenyakit();
       setIsModalTambahOpen(false);
     } catch (error) {
@@ -52,9 +67,14 @@ const DataPenyakit = () => {
   // ✅ Hapus Data Penyakit
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/penyakit/hapus/${id}`, getAuthHeaders());
+      const headers = getAuthHeaders();
+      if (!headers) return;
+      await axios.delete(
+        `http://localhost:5000/api/penyakit/hapus/${id}`,
+        headers
+      );
       fetchPenyakit();
-      setIsDeleteModalOpen(false);  // Close the modal after delete
+      setIsDeleteModalOpen(false);
     } catch (error) {
       console.error("Error deleting penyakit:", error.response?.data || error.message);
     }
@@ -63,10 +83,12 @@ const DataPenyakit = () => {
   // ✅ Edit Data Penyakit
   const handleEdit = async (updatedData) => {
     try {
+      const headers = getAuthHeaders();
+      if (!headers) return;
       await axios.put(
         `http://localhost:5000/api/penyakit/update/${updatedData.id_penyakit}`,
         updatedData,
-        getAuthHeaders()
+        headers
       );
       fetchPenyakit();
       setIsModalEditOpen(false);
@@ -77,9 +99,7 @@ const DataPenyakit = () => {
 
   return (
     <div className="p-2 pt-4 w-full">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-4">
-        Data Penyakit dan Solusi
-      </h1>
+      <h1 className="text-2xl font-semibold text-gray-800 mb-4">Data Penyakit dan Solusi</h1>
 
       {/* Tombol Tambah Data */}
       <button
@@ -105,10 +125,7 @@ const DataPenyakit = () => {
 
           <tbody>
             {penyakitData.map((penyakit, index) => (
-              <tr
-                key={penyakit.id_penyakit}
-                className="bg-white border-b hover:bg-gray-50"
-              >
+              <tr key={penyakit.id_penyakit} className="bg-white border-b hover:bg-gray-50">
                 <td className="px-4 py-4 border">{index + 1}</td>
                 <td className="px-4 py-4 border">{penyakit.kode_penyakit}</td>
                 <td className="px-4 py-4 border">{penyakit.nama_penyakit}</td>
@@ -127,8 +144,8 @@ const DataPenyakit = () => {
                     </button>
                     <button
                       onClick={() => {
-                        setPenyakitToDelete(penyakit); // Set the selected penyakit for deletion
-                        setIsDeleteModalOpen(true); // Open the delete confirmation modal
+                        setPenyakitToDelete(penyakit);
+                        setIsDeleteModalOpen(true);
                       }}
                       className="border border-red-700 text-red-700 px-3 py-2 rounded-md w-24 h-7 flex items-center justify-center gap-1 hover:bg-red-700 hover:text-white transition"
                     >
@@ -165,7 +182,7 @@ const DataPenyakit = () => {
           isOpen={isDeleteModalOpen}
           message={`Apakah Anda yakin ingin menghapus penyakit ${penyakitToDelete.nama_penyakit}?`}
           onConfirm={() => handleDelete(penyakitToDelete.id_penyakit)}
-          onCancel={() => setIsDeleteModalOpen(false)} // Close the modal if cancel is clicked
+          onCancel={() => setIsDeleteModalOpen(false)} // Close modal if canceled
         />
       )}
     </div>
