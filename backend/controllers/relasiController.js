@@ -46,7 +46,7 @@ exports.tambahRelasi = async (req, res) => {
 // ✅ Ambil Semua Relasi Penyakit - Gejala (Dengan Join)
 exports.getRelasi = async (req, res) => {
   try {
-    // Mengambil relasi penyakit dan gejala
+    // Mengambil relasi penyakit dan gejala dengan join
     const relasi = await RelasiPenyakitGejala.findAll({
       include: [
         {
@@ -63,7 +63,9 @@ exports.getRelasi = async (req, res) => {
     });
 
     if (!relasi.length) {
-      return res.status(404).json({ message: "Tidak ada data relasi ditemukan" });
+      return res
+        .status(404)
+        .json({ message: "Tidak ada data relasi ditemukan" });
     }
 
     res.json(relasi);

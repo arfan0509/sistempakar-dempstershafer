@@ -1,5 +1,7 @@
 const { DataTypes } = require("sequelize");
 const db = require("../config/database");
+const Penyakit = require("./Penyakit");
+const Gejala = require("./Gejala");
 
 const RelasiPenyakitGejala = db.define(
   "relasi_penyakit_gejala",
@@ -20,14 +22,19 @@ const RelasiPenyakitGejala = db.define(
 );
 
 // Menambahkan asosiasi dengan CASCADE
-RelasiPenyakitGejala.associate = (models) => {
-  RelasiPenyakitGejala.belongsTo(models.Penyakit, {
+RelasiPenyakitGejala.associate = () => {
+  // Menambahkan asosiasi antara RelasiPenyakitGejala dan Penyakit
+  RelasiPenyakitGejala.belongsTo(Penyakit, {
     foreignKey: "id_penyakit",
-    onDelete: "CASCADE", // Menambahkan CASCADE
+    as: "penyakit", // Alias untuk model Penyakit
+    onDelete: "CASCADE",
   });
-  RelasiPenyakitGejala.belongsTo(models.Gejala, {
+
+  // Menambahkan asosiasi antara RelasiPenyakitGejala dan Gejala
+  RelasiPenyakitGejala.belongsTo(Gejala, {
     foreignKey: "id_gejala",
-    onDelete: "CASCADE", // Menambahkan CASCADE
+    as: "gejala", // Alias untuk model Gejala
+    onDelete: "CASCADE",
   });
 };
 

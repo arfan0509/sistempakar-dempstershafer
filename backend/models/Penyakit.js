@@ -16,4 +16,13 @@ const Penyakit = db.define(
   }
 );
 
+// Menambahkan metode associate untuk model Penyakit
+Penyakit.associate = (models) => {
+  // Relasi dengan RelasiPenyakitGejala
+  Penyakit.hasMany(models.RelasiPenyakitGejala, {
+    foreignKey: "id_penyakit",
+    onDelete: "CASCADE",
+  });
+};
+
 module.exports = Penyakit;

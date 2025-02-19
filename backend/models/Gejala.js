@@ -15,4 +15,13 @@ const Gejala = db.define(
   }
 );
 
+// Menambahkan metode associate untuk model Gejala
+Gejala.associate = (models) => {
+  // Relasi dengan RelasiPenyakitGejala
+  Gejala.hasMany(models.RelasiPenyakitGejala, {
+    foreignKey: "id_gejala",
+    onDelete: "CASCADE",
+  });
+};
+
 module.exports = Gejala;
