@@ -4,24 +4,45 @@ import axios from "axios";
 const Dashboard: React.FC = () => {
   const [penyakitCount, setPenyakitCount] = useState(0);
   const [gejalaCount, setGejalaCount] = useState(0);
+  const [loading, setLoading] = useState(true); // Tambahkan loading state
 
-  // Ambil data jumlah penyakit dan gejala
+  // ✅ Fungsi untuk mengambil token autentikasi dari localStorage
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("Token tidak ditemukan, redirect ke login.");
+      window.location.href = "/admin-login"; // Redirect jika token tidak ada
+      return null;
+    }
+    return { headers: { Authorization: `Bearer ${token}` } };
+  };
+
+  // ✅ Ambil Data Dashboard
   const fetchDashboardData = async () => {
     try {
+      const headers = getAuthHeaders();
+      if (!headers) return; // Jika token tidak ada, hentikan eksekusi
+
       const penyakitResponse = await axios.get(
-        "http://localhost:5000/api/penyakit"
+        "http://localhost:5000/api/penyakit",
+        headers
       );
       const gejalaResponse = await axios.get(
-        "http://localhost:5000/api/gejala"
+        "http://localhost:5000/api/gejala",
+        headers
       );
-
-      console.log("Penyakit Data:", penyakitResponse.data); // Debugging log
-      console.log("Gejala Data:", gejalaResponse.data); // Debugging log
 
       setPenyakitCount(penyakitResponse.data.length);
       setGejalaCount(gejalaResponse.data.length);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
+      if (error.response?.status === 401) {
+        alert("Sesi telah habis. Silakan login ulang.");
+        localStorage.removeItem("accessToken");
+        window.location.href = "/admin-login";
+      }
+    } finally {
+      setLoading(false); // Matikan loading setelah data selesai diambil
     }
   };
 
@@ -29,9 +50,14 @@ const Dashboard: React.FC = () => {
     fetchDashboardData();
   }, []);
 
+  // ✅ Tampilkan Loading jika Data Masih Diproses
+  if (loading) {
+    return <p className="text-center text-gray-700 mt-4">Memuat data...</p>;
+  }
+
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-4">Dashboard Admin</h1>
       <p>Selamat datang di dashboard admin!</p>
 
       {/* Statistik Jumlah Penyakit dan Gejala */}
@@ -44,13 +70,6 @@ const Dashboard: React.FC = () => {
           <h3 className="text-lg font-semibold">Jumlah Gejala</h3>
           <p className="text-2xl">{gejalaCount}</p>
         </div>
-      </div>
-
-      {/* Konten Lainnya */}
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Statistik Terbaru</h2>
-        {/* Anda bisa menambahkan grafik atau tabel di sini */}
-        {/* Contoh: Grafik distribusi penyakit atau gejala */}
       </div>
     </div>
   );

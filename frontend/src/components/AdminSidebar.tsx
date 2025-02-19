@@ -24,8 +24,9 @@ const Sidebar = ({
 
   // Fungsi Logout
   const handleLogout = () => {
-    localStorage.removeItem("token"); // Hapus token dari localStorage
-    navigate("/");
+    localStorage.removeItem("accessToken"); // ✅ Hapus access token
+    localStorage.removeItem("refreshToken"); // ✅ Hapus refresh token
+    navigate("/"); // ✅ Arahkan kembali ke halaman login admin
   };
 
   return (

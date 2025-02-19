@@ -6,6 +6,7 @@ const { db } = require("./models"); // Mengimpor db dan model dari index.js
 // Import Routes
 const adminRoutes = require("./routes/adminRoutes");
 const pasienRoutes = require("./routes/pasienRoutes");
+const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const diagnosisRoutes = require("./routes/diagnosisRoutes");
 const penyakitRoutes = require("./routes/penyakitRoutes");
@@ -19,6 +20,7 @@ app.use(bodyParser.json());
 // Gunakan Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/pasien", pasienRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api", profileRoutes);
 app.use("/api/diagnosis", diagnosisRoutes);
 app.use("/api/penyakit", penyakitRoutes);

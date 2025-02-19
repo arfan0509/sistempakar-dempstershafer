@@ -15,7 +15,7 @@ const DataGejala = () => {
 
   // ✅ Fungsi untuk mendapatkan token autentikasi
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken"); // Gunakan key yang benar
     if (!token) {
       console.error("Token tidak ditemukan, silakan login ulang!");
       return null;
@@ -42,6 +42,7 @@ const DataGejala = () => {
       if (error.response) {
         if (error.response.status === 401) {
           console.error("Unauthorized: Token mungkin sudah kadaluwarsa.");
+          // Optional: Tambahkan logika untuk refresh token di sini
         } else {
           console.error("Error fetching gejala data:", error.response.data);
         }

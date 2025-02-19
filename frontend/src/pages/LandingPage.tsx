@@ -1,17 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ModalLogin from "../components/ModalLogin";
 
 const LandingPage: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false); // State untuk modal login
   const navigate = useNavigate();
 
   // Fungsi untuk mengarahkan ke halaman login
   const handleLogin = () => {
-    navigate("/login"); // Ganti dengan route halaman login yang sesuai
+    setIsModalOpen(true); // Menampilkan modal login saat tombol login ditekan
   };
 
   // Fungsi untuk mengarahkan ke halaman register
   const handleRegister = () => {
     navigate("/register"); // Ganti dengan route halaman register yang sesuai
+  };
+
+  // Fungsi untuk menutup modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -47,22 +54,22 @@ const LandingPage: React.FC = () => {
             Register
           </button>
         </div>
-      </div>
 
-      {/* Tombol Login dan Register (Mobile) */}
-      <div className="absolute sm:hidden bottom-10 left-1/2 transform -translate-x-1/2 flex space-x-4 mt-6">
-        <button
-          className="px-8 py-2 text-white bg-[#4F81C7] border-2 border-[#4F81C7] rounded-lg shadow-md hover:bg-[#3e6b99] transition duration-300"
-          onClick={handleLogin}
-        >
-          Login
-        </button>
-        <button
-          className="px-5 py-2 text-white bg-transparent border-2 border-white rounded-lg shadow-md hover:bg-[#4F81C7] hover:text-white transition duration-300"
-          onClick={handleRegister}
-        >
-          Register
-        </button>
+        {/* Tombol Login dan Register (Mobile) - Pastikan tombol selalu terlihat */}
+        <div className="absolute sm:block bottom-10 left-1/2 transform -translate-x-1/2 flex space-x-4 mt-6 sm:hidden">
+          <button
+            className="px-8 py-2 text-white bg-[#4F81C7] border-2 border-[#4F81C7] rounded-lg shadow-md hover:bg-[#3e6b99] transition duration-300"
+            onClick={handleLogin}
+          >
+            Login
+          </button>
+          <button
+            className="px-5 py-2 text-white bg-transparent border-2 border-white rounded-lg shadow-md hover:bg-[#4F81C7] hover:text-white transition duration-300"
+            onClick={handleRegister}
+          >
+            Register
+          </button>
+        </div>
       </div>
 
       {/* Penjelasan Sistem Pakar Identifikasi Penyakit Kucing */}
@@ -93,6 +100,9 @@ const LandingPage: React.FC = () => {
           yang diberikan.
         </p>
       </div>
+
+      {/* Modal Login */}
+      <ModalLogin isOpen={isModalOpen} onClose={handleCloseModal} />
     </div>
   );
 };
