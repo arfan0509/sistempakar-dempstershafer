@@ -14,7 +14,14 @@ const gejalaRoutes = require("./routes/gejalaRoutes");
 const relasiRoutes = require("./routes/relasiRoutes");
 
 const app = express();
-app.use(cors());
+
+// ✅ Konfigurasi CORS yang Benar
+app.use(cors({
+  origin: "http://localhost:5173", // Ganti jika frontend di port berbeda
+  credentials: true,
+  allowedHeaders: ["Authorization", "Content-Type"], // ✅ Pastikan Authorization diizinkan
+}));
+
 app.use(bodyParser.json());
 
 // Gunakan Routes

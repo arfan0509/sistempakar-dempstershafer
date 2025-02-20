@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
+
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import LoginAdminPage from "./pages/LoginAdminPage";
@@ -14,102 +15,85 @@ import DataPenyakitDanSolusi from "./pages/DataPenyakitDanSolusi";
 import DataGejala from "./pages/DataGejala";
 import DataRelasiGejala from "./pages/DataRelasiGejala";
 import AdminSidebar from "./components/AdminSidebar";
+import { AuthProvider, AuthContext } from "./context/AuthContext";
+
+const LoadingScreen = () => (
+  <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex flex-col items-center">
+      <div className="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+      <p className="mt-4 text-lg font-semibold text-gray-700 animate-pulse">
+        Memuat halaman...
+      </p>
+    </div>
+  </div>
+);
+
+const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+  const { isLoggedIn, isAdmin, isLoading } = useContext(AuthContext);
+
+  if (isLoading) {
+    return <LoadingScreen />; // ✅ Tampilkan animasi loading
+  }
+
+  return isLoggedIn && isAdmin ? (
+    children
+  ) : (
+    <Navigate to="/admin-login" replace />
+  );
+};
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isPasien, setIsPasien] = useState(false);
-
-  useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem("accessToken");
-      console.log("Token dari localStorage:", token); // 🔥 Debug Token
-
-      if (token) {
-        try {
-          const decodedToken = JSON.parse(atob(token.split(".")[1]));
-          console.log("Decoded Token:", decodedToken); // 🔥 Debug Decode Token
-          setIsLoggedIn(true);
-          setIsAdmin(decodedToken.role === "admin");
-          setIsPasien(decodedToken.role === "pasien");
-        } catch (error) {
-          console.error("Error decoding token", error);
-          setIsLoggedIn(false);
-          setIsAdmin(false);
-          setIsPasien(false);
-        }
-      } else {
-        setIsLoggedIn(false);
-        setIsAdmin(false);
-        setIsPasien(false);
-      }
-    };
-
-    checkAuth();
-
-    // 🔥 Hapus interval karena tidak perlu dicek terus-menerus
-  }, []); // ✅ Dependency list kosong agar hanya berjalan saat pertama kali render
-
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/admin-login" element={<LoginAdminPage />} />
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin-login" element={<LoginAdminPage />} />
 
-        {isLoggedIn && isPasien ? (
-          <Route path="/sistem-pakar" element={<SistemPakarPage />} />
-        ) : (
           <Route
-            path="/sistem-pakar"
-            element={<Navigate to="/login" replace />}
-          />
-        )}
-
-        {isLoggedIn && isAdmin ? (
-          <>
-            <Route
-              path="/admin-dashboard"
-              element={
+            path="/admin-dashboard"
+            element={
+              <PrivateRoute>
                 <AdminSidebar>
                   <Dashboard />
                 </AdminSidebar>
-              }
-            />
-            <Route
-              path="/data-penyakit-dan-solusi"
-              element={
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/data-penyakit-dan-solusi"
+            element={
+              <PrivateRoute>
                 <AdminSidebar>
                   <DataPenyakitDanSolusi />
                 </AdminSidebar>
-              }
-            />
-            <Route
-              path="/data-gejala"
-              element={
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/data-gejala"
+            element={
+              <PrivateRoute>
                 <AdminSidebar>
                   <DataGejala />
                 </AdminSidebar>
-              }
-            />
-            <Route
-              path="/data-relasi-gejala"
-              element={
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/data-relasi-gejala"
+            element={
+              <PrivateRoute>
                 <AdminSidebar>
                   <DataRelasiGejala />
                 </AdminSidebar>
-              }
-            />
-          </>
-        ) : (
-          <Route
-            path="/admin-dashboard"
-            element={<Navigate to="/admin-login" replace />}
+              </PrivateRoute>
+            }
           />
-        )}
-
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 }

@@ -25,21 +25,19 @@ exports.loginAdmin = async (req, res) => {
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) return res.status(400).json({ message: "Password salah" });
 
-    // Generate Access Token (JWT)
+    // ✅ Pastikan role dimasukkan ke dalam token
     const accessToken = jwt.sign(
       { id: admin.id_admin, email: admin.email, role: "admin" },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" } // Token valid selama 1 jam
+      { expiresIn: "1h" }
     );
 
-    // Generate Refresh Token
     const refreshToken = jwt.sign(
       { id: admin.id_admin, email: admin.email, role: "admin" },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" } // Refresh token valid selama 7 hari
+      { expiresIn: "7d" }
     );
 
-    // Kirim access token dan refresh token
     res.json({ message: "Login berhasil", accessToken, refreshToken });
   } catch (error) {
     res.status(500).json({ error: error.message });

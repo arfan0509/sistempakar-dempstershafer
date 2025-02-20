@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useContext } from "react";
 import axios from "axios";
+import { AuthContext } from "../context/AuthContext";
 
 const LoginAdminPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleLogin = async () => {
     try {
@@ -13,14 +13,9 @@ const LoginAdminPage: React.FC = () => {
         "http://localhost:5000/api/admin/login",
         { email, password }
       );
-      const { accessToken, refreshToken } = response.data;
-
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-
-      // ✅ Menggunakan navigate dengan replace agar langsung redirect
-      navigate("/admin-dashboard", { replace: true });
-    } catch (error) {
+      const { accessToken } = response.data;
+      login(accessToken); // ✅ Login akan otomatis redirect di AuthContext
+    } catch (error: any) {
       console.error("Login error:", error);
       alert(error.response?.data?.message || "Terjadi kesalahan");
     }
