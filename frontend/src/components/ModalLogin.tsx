@@ -46,7 +46,7 @@ const ModalLogin: React.FC<ModalLoginProps> = ({ isOpen, onClose }) => {
                 role === "admin"
                   ? "bg-[#4F81C7] text-white"
                   : "bg-transparent border-2 border-[#4F81C7] text-[#4F81C7]"
-              } hover:bg-[#3e6b99] transition duration-300`}
+              } hover:bg-[#3A6BA8] transition duration-300`}
               onClick={() => setRole("admin")}
             >
               Admin

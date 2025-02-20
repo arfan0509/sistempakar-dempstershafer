@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 
-const LoginAdminPage: React.FC = () => {
+const LoginPasienPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useContext(AuthContext);
@@ -10,11 +10,13 @@ const LoginAdminPage: React.FC = () => {
   const handleLogin = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/admin/login",
+        "http://localhost:5000/api/pasien/login",
         { email, password }
       );
       const { accessToken, refreshToken } = response.data;
-      localStorage.setItem("refreshToken", refreshToken); // ✅ Simpan refresh token
+
+      // ✅ Simpan refresh token dan access token ke localStorage
+      localStorage.setItem("refreshToken", refreshToken);
       login(accessToken, refreshToken); // ✅ Login dengan accessToken dan refreshToken
     } catch (error: any) {
       console.error("Login error:", error);
@@ -30,7 +32,7 @@ const LoginAdminPage: React.FC = () => {
       <div className="absolute inset-0 bg-black opacity-50"></div>
       <div className="relative z-10 p-8 bg-white bg-opacity-80 rounded-xl shadow-lg w-full max-w-md">
         <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">
-          Login Admin
+          Login Pasien
         </h2>
         <input
           type="email"
@@ -57,4 +59,4 @@ const LoginAdminPage: React.FC = () => {
   );
 };
 
-export default LoginAdminPage;
+export default LoginPasienPage;

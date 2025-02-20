@@ -97,7 +97,7 @@ const ModalTambahPenyakit = ({ isOpen, onClose, onSave }) => {
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-[#4F81C7] text-white rounded-md hover:bg-[#2E5077] transition"
+            className="px-4 py-2 bg-[#4F81C7] text-white rounded-md hover:bg-[#3A6BA8] transition"
           >
             Simpan
           </button>

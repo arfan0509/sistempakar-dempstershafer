@@ -7,8 +7,9 @@ import {
 } from "react-router-dom";
 
 import LandingPage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPage";
+import LoginPage from "./pages/LoginPasienPage";
 import LoginAdminPage from "./pages/LoginAdminPage";
+import LoginPasienPage from "./pages/LoginPasienPage";
 import SistemPakarPage from "./pages/SistemPakarPage";
 import Dashboard from "./pages/Dashboard";
 import DataPenyakitDanSolusi from "./pages/DataPenyakitDanSolusi";
@@ -28,17 +29,23 @@ const LoadingScreen = () => (
   </div>
 );
 
-const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+const PrivateRouteAdmin = ({ children }: { children: JSX.Element }) => {
   const { isLoggedIn, isAdmin, isLoading } = useContext(AuthContext);
-
-  if (isLoading) {
-    return <LoadingScreen />; // ✅ Tampilkan animasi loading
-  }
-
+  if (isLoading) return <LoadingScreen />;
   return isLoggedIn && isAdmin ? (
     children
   ) : (
     <Navigate to="/admin-login" replace />
+  );
+};
+
+const PrivateRoutePasien = ({ children }: { children: JSX.Element }) => {
+  const { isLoggedIn, isPasien, isLoading } = useContext(AuthContext);
+  if (isLoading) return <LoadingScreen />;
+  return isLoggedIn && isPasien ? (
+    children
+  ) : (
+    <Navigate to="/pasien-login" replace />
   );
 };
 
@@ -50,45 +57,57 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin-login" element={<LoginAdminPage />} />
+          <Route path="/pasien-login" element={<LoginPasienPage />} />
 
+          {/* ✅ Halaman Pasien */}
+          <Route
+            path="/sistem-pakar"
+            element={
+              <PrivateRoutePasien>
+                <SistemPakarPage />
+              </PrivateRoutePasien>
+            }
+          />
+
+          {/* ✅ Halaman Admin */}
           <Route
             path="/admin-dashboard"
             element={
-              <PrivateRoute>
+              <PrivateRouteAdmin>
                 <AdminSidebar>
                   <Dashboard />
                 </AdminSidebar>
-              </PrivateRoute>
+              </PrivateRouteAdmin>
             }
           />
           <Route
             path="/data-penyakit-dan-solusi"
             element={
-              <PrivateRoute>
+              <PrivateRouteAdmin>
                 <AdminSidebar>
                   <DataPenyakitDanSolusi />
                 </AdminSidebar>
-              </PrivateRoute>
+              </PrivateRouteAdmin>
             }
           />
           <Route
             path="/data-gejala"
             element={
-              <PrivateRoute>
+              <PrivateRouteAdmin>
                 <AdminSidebar>
                   <DataGejala />
                 </AdminSidebar>
-              </PrivateRoute>
+              </PrivateRouteAdmin>
             }
           />
           <Route
             path="/data-relasi-gejala"
             element={
-              <PrivateRoute>
+              <PrivateRouteAdmin>
                 <AdminSidebar>
                   <DataRelasiGejala />
                 </AdminSidebar>
-              </PrivateRoute>
+              </PrivateRouteAdmin>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />

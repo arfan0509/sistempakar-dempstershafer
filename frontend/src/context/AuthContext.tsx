@@ -1,18 +1,21 @@
 import React, { createContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 interface AuthContextType {
   isLoggedIn: boolean;
   isAdmin: boolean;
+  isPasien: boolean;
   isLoading: boolean;
-  login: (accessToken: string) => void;
+  login: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
   isAdmin: false,
+  isPasien: false,
   isLoading: true,
   login: () => {},
   logout: () => {},
@@ -21,50 +24,80 @@ export const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isPasien, setIsPasien] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  const refreshAccessToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!refreshToken) throw new Error("Refresh token tidak ditemukan");
+
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/refresh-token",
+        {
+          refreshToken,
+        }
+      );
+      const { accessToken } = response.data;
+      localStorage.setItem("accessToken", accessToken);
+      const decoded: any = jwtDecode(accessToken);
+      setIsLoggedIn(true);
+      setIsAdmin(decoded.role === "admin");
+      setIsPasien(decoded.role === "pasien");
+    } catch (error) {
+      console.error("❌ Gagal refresh token:", error);
+      logout();
+    }
+  };
+
   const checkToken = async () => {
-    setIsLoading(true); // Mulai loading
+    setIsLoading(true);
     const token = localStorage.getItem("accessToken");
-    await new Promise((resolve) => setTimeout(resolve, 700)); // 🕒 Delay 2 detik
+
+    // Menambahkan delay agar loading spinner tetap tampil selama beberapa detik
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     if (token) {
       try {
         const decoded: any = jwtDecode(token);
-        console.log("✅ Decoded Token:", decoded);
         if (decoded.exp * 1000 < Date.now()) {
-          console.warn("⚠️ Token expired");
-          logout();
-        } else if (decoded.role === "admin") {
-          setIsLoggedIn(true);
-          setIsAdmin(true);
+          console.log("⚠️ Token expired, mencoba refresh...");
+          await refreshAccessToken();
         } else {
-          logout();
+          setIsLoggedIn(true);
+          setIsAdmin(decoded.role === "admin");
+          setIsPasien(decoded.role === "pasien");
         }
       } catch (error) {
         console.error("❌ Token tidak valid:", error);
         logout();
       }
     } else {
-      setIsLoggedIn(false);
-      setIsAdmin(false);
+      await refreshAccessToken();
     }
-    setIsLoading(false); // Selesai loading
+    setIsLoading(false);
   };
 
-  const login = (accessToken: string) => {
+  const login = (accessToken: string, refreshToken: string) => {
     localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+    const decoded: any = jwtDecode(accessToken);
     setIsLoggedIn(true);
-    setIsAdmin(true);
-    navigate("/admin-dashboard", { replace: true });
+    setIsAdmin(decoded.role === "admin");
+    setIsPasien(decoded.role === "pasien");
+
+    if (decoded.role === "admin")
+      navigate("/admin-dashboard", { replace: true });
+    if (decoded.role === "pasien") navigate("/sistem-pakar", { replace: true });
   };
 
   const logout = () => {
     localStorage.clear();
     setIsLoggedIn(false);
     setIsAdmin(false);
-    navigate("/admin-login", { replace: true });
+    setIsPasien(false);
+    navigate("/", { replace: true });
   };
 
   useEffect(() => {
@@ -72,7 +105,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, isAdmin, isLoading, login, logout }}>
+    <AuthContext.Provider
+      value={{ isLoggedIn, isAdmin, isPasien, isLoading, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

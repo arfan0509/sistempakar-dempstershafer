@@ -59,7 +59,7 @@ const Sidebar = ({
           <li>
             <Link
               to="/admin-dashboard"
-              className="block p-2 hover:bg-[#2E5077] flex items-center"
+              className="block p-2 hover:bg-[#3A6BA8] flex items-center"
               onClick={onClose}
             >
               <FiHome className="mr-2" /> Dashboard
@@ -68,7 +68,7 @@ const Sidebar = ({
 
           {/* Master Data Toggle */}
           <li
-            className="p-2 hover:bg-[#2E5077] flex justify-between items-center cursor-pointer"
+            className="p-2 hover:bg-[#3A6BA8] flex justify-between items-center cursor-pointer"
             onClick={toggleMaster}
           >
             <span className="flex items-center">
@@ -87,7 +87,7 @@ const Sidebar = ({
               <li>
                 <Link
                   to="/data-penyakit-dan-solusi"
-                  className="block p-2 hover:bg-[#2E5077] flex items-center"
+                  className="block p-2 hover:bg-[#3A6BA8] flex items-center"
                   onClick={onClose}
                 >
                   <FiFileText className="mr-2" /> Penyakit dan Solusi
@@ -96,7 +96,7 @@ const Sidebar = ({
               <li>
                 <Link
                   to="/data-gejala"
-                  className="block p-2 hover:bg-[#2E5077] flex items-center"
+                  className="block p-2 hover:bg-[#3A6BA8] flex items-center"
                   onClick={onClose}
                 >
                   <FiActivity className="mr-2" /> Data Gejala
@@ -105,7 +105,7 @@ const Sidebar = ({
             </ul>
           </div>
 
-          <li className="p-2 hover:bg-[#2E5077] flex items-center">
+          <li className="p-2 hover:bg-[#3A6BA8] flex items-center">
             <Link
               to="/data-relasi-gejala"
               className="flex items-center text-white w-full"
@@ -115,13 +115,13 @@ const Sidebar = ({
             </Link>
           </li>
 
-          <li className="p-2 hover:bg-[#2E5077] flex items-center">
+          <li className="p-2 hover:bg-[#3A6BA8] flex items-center">
             <FiClock className="mr-2" /> Riwayat
           </li>
 
           {/* Tombol Logout */}
           <li
-            className="p-2 hover:bg-[#2E5077] flex items-center cursor-pointer"
+            className="p-2 hover:bg-[#3A6BA8] flex items-center cursor-pointer"
             onClick={handleLogout}
           >
             <FiLogOut className="mr-2" /> Logout

@@ -42,7 +42,7 @@ const LandingPage: React.FC = () => {
         {/* Tombol Login dan Register (Desktop) */}
         <div className="absolute top-4 right-8 hidden sm:block">
           <button
-            className="px-8 py-2 text-white bg-[#4F81C7] border-2 border-[#4F81C7] rounded-lg shadow-md hover:bg-[#3e6b99] transition duration-300 mr-4"
+            className="px-8 py-2 text-white bg-[#4F81C7] border-2 border-[#4F81C7] rounded-lg shadow-md hover:bg-[#3A6BA8] transition duration-300 mr-4"
             onClick={handleLogin}
           >
             Login
@@ -58,7 +58,7 @@ const LandingPage: React.FC = () => {
         {/* Tombol Login dan Register (Mobile) - Pastikan tombol selalu terlihat */}
         <div className="absolute sm:block bottom-10 left-1/2 transform -translate-x-1/2 flex space-x-4 mt-6 sm:hidden">
           <button
-            className="px-8 py-2 text-white bg-[#4F81C7] border-2 border-[#4F81C7] rounded-lg shadow-md hover:bg-[#3e6b99] transition duration-300"
+            className="px-8 py-2 text-white bg-[#4F81C7] border-2 border-[#4F81C7] rounded-lg shadow-md hover:bg-[#3A6BA8] transition duration-300"
             onClick={handleLogin}
           >
             Login

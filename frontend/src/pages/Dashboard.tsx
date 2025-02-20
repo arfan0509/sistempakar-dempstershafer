@@ -50,11 +50,6 @@ const Dashboard: React.FC = () => {
     fetchDashboardData();
   }, []);
 
-  // ✅ Tampilkan Loading jika Data Masih Diproses
-  if (loading) {
-    return <p className="text-center text-gray-700 mt-4">Memuat data...</p>;
-  }
-
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Dashboard Admin</h1>
