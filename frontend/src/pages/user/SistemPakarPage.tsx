@@ -1,5 +1,3 @@
-/* eslint-disable prefer-const */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../api/axiosInstance";
 
@@ -7,8 +5,8 @@ const SistemPakarPage: React.FC = () => {
   const [gejalaList, setGejalaList] = useState<any[]>([]);
   const [penyakitList, setPenyakitList] = useState<any[]>([]);
   const [selectedGejala, setSelectedGejala] = useState<string[]>([]);
-  const [hasilDiagnosa, setHasilDiagnosa] = useState<string>("");
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [hasilDiagnosa, setHasilDiagnosa] = useState<any>([]); // Simpan hasil dalam bentuk array untuk manipulasi
+  const [showOtherPenyakit, setShowOtherPenyakit] = useState<boolean>(false); // State untuk mengontrol tampilan penyakit lainnya
 
   // Ambil data penyakit dan gejala dari API
   useEffect(() => {
@@ -20,7 +18,6 @@ const SistemPakarPage: React.FC = () => {
         const gejalaMap: any = {};
         const penyakitMap: any = {};
 
-        // Memetakan gejala dan penyakit berdasarkan data relasi
         data.forEach((item: any) => {
           gejalaMap[item.gejala.kode_gejala] = {
             nama: item.gejala.nama_gejala,
@@ -28,31 +25,28 @@ const SistemPakarPage: React.FC = () => {
             kode: item.gejala.kode_gejala,
           };
 
-          penyakitMap[item.penyakit.kode_penyakit] = {
-            nama: item.penyakit.nama_penyakit,
-            deskripsi: item.penyakit.deskripsi,
-            solusi: item.penyakit.solusi,
-          };
+          if (!penyakitMap[item.penyakit.kode_penyakit]) {
+            penyakitMap[item.penyakit.kode_penyakit] = {
+              nama: item.penyakit.nama_penyakit,
+              deskripsi: item.penyakit.deskripsi,
+              solusi: item.penyakit.solusi,
+              gejala: [],
+            };
+          }
+
+          penyakitMap[item.penyakit.kode_penyakit].gejala.push(
+            item.gejala.kode_gejala
+          );
         });
 
-        // Mengonversi objek penyakitMap menjadi array
-        const penyakitArray = Object.values(penyakitMap);
-
-        // Menyimpan gejala dan penyakit dalam state
         setGejalaList(Object.values(gejalaMap));
-        setPenyakitList(penyakitArray); // Pastikan ini menjadi array
+        setPenyakitList(Object.values(penyakitMap));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
+
     fetchData();
-
-    // Auto slide banner every 5 seconds
-    const slideInterval = setInterval(() => {
-      setCurrentSlide((prev) => (prev === 1 ? 0 : prev + 1));
-    }, 5000);
-
-    return () => clearInterval(slideInterval);
   }, []);
 
   // Fungsi untuk menghitung hasil diagnosa
@@ -65,81 +59,45 @@ const SistemPakarPage: React.FC = () => {
     let hasil: any = {};
     let totalBelief = 0;
 
-    // Menghitung belief untuk setiap penyakit
     penyakitList.forEach((penyakit) => {
       let belief = 0;
       let gejalaCocok: string[] = [];
 
-      // Memeriksa gejala yang cocok dengan penyakit
-      gejalaList.forEach((gejala) => {
-        if (selectedGejala.includes(gejala.kode)) {
+      penyakit.gejala.forEach((gejalaKode: string) => {
+        const gejala = gejalaList.find((g) => g.kode === gejalaKode);
+        if (gejala && selectedGejala.includes(gejala.kode)) {
           belief += gejala.bobot;
           gejalaCocok.push(gejala.nama);
         }
       });
 
       if (belief > 0) {
-        hasil[penyakit.nama] = belief;
+        hasil[penyakit.nama] = { belief, gejalaCocok };
         totalBelief += belief;
       }
     });
 
-    // Normalisasi ke persentase
     if (totalBelief > 0) {
       Object.keys(hasil).forEach((penyakitNama) => {
-        hasil[penyakitNama] = (hasil[penyakitNama] / totalBelief) * 100;
+        hasil[penyakitNama].belief =
+          (hasil[penyakitNama].belief / totalBelief) * 100;
       });
     }
 
     // Urutkan hasil diagnosa berdasarkan prosentase
-    const sortedResults = Object.entries(hasil).sort((a, b) => b[1] - a[1]);
+    const sortedResults = Object.entries(hasil).sort(
+      (a, b) => b[1].belief - a[1].belief
+    );
 
-    // Tampilkan hasil diagnosa dengan gejala yang sesuai
-    const result = sortedResults.map(
-      ([penyakitNama, percentage]) => {
-        const penyakit = penyakitList.find(p => p.nama === penyakitNama);
-        return `
-          <div>
-            <strong>${penyakit?.nama}</strong>: ${percentage.toFixed(2)}%
-            <p><strong>Deskripsi:</strong> ${penyakit?.deskripsi}</p>
-            <p><strong>Solusi:</strong> ${penyakit?.solusi}</p>
-          </div>
-        `;
-      }
-    ).join("");
-
-    setHasilDiagnosa(result);
+    // Tampilkan hasil diagnosa
+    setHasilDiagnosa(sortedResults);
   };
 
   return (
     <div className="container mx-auto p-4">
-      {/* Banner Auto Slide */}
-      <div className="relative h-64 overflow-hidden rounded-lg mb-8">
-        <div
-          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-            currentSlide === 0 ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <img
-            src="/assets/kucing1.jpg"
-            alt="Banner Kucing 1"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div
-          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-            currentSlide === 1 ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <img
-            src="/assets/kucing2.jpg"
-            alt="Banner Kucing 2"
-            className="w-full h-full object-cover"
-          />
-        </div>
-      </div>
-
-      <h1 className="text-3xl font-bold text-center mb-6">Sistem Pakar Kucing</h1>
+      <h1 className="text-3xl font-bold text-center mb-6">
+        Sistem Pakar Kucing
+      </h1>
 
       <p className="text-lg text-gray-700 mb-6">
         Selamat datang di Sistem Pakar Kucing! Sistem ini dapat membantu Anda
@@ -184,10 +142,74 @@ const SistemPakarPage: React.FC = () => {
       </form>
 
       {/* Hasil Diagnosa */}
-      {hasilDiagnosa && (
+      {hasilDiagnosa.length > 0 && (
         <div className="hasil-diagnosa bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold mb-4">Hasil Diagnosa</h2>
-          <div dangerouslySetInnerHTML={{ __html: hasilDiagnosa }} />
+          <div>
+            {/* Penyakit dengan persentase terbesar */}
+            <div className="mb-4">
+              <strong>{hasilDiagnosa[0][0]}</strong>:{" "}
+              {hasilDiagnosa[0][1].belief.toFixed(2)}%
+              <p>
+                <strong>Deskripsi:</strong>{" "}
+                {
+                  penyakitList.find((p) => p.nama === hasilDiagnosa[0][0])
+                    ?.deskripsi
+                }
+              </p>
+              <p>
+                <strong>Solusi:</strong>{" "}
+                {
+                  penyakitList.find((p) => p.nama === hasilDiagnosa[0][0])
+                    ?.solusi
+                }
+              </p>
+              <p>
+                <strong>Gejala terdeteksi:</strong>{" "}
+                {hasilDiagnosa[0][1].gejalaCocok.join(", ")}
+              </p>
+            </div>
+
+            {/* Penyakit lainnya */}
+            <button
+              className="text-blue-600"
+              onClick={() => setShowOtherPenyakit(!showOtherPenyakit)}
+            >
+              {showOtherPenyakit
+                ? "Sembunyikan Penyakit Lainnya"
+                : "Tampilkan Penyakit Lainnya"}
+            </button>
+
+            {showOtherPenyakit && (
+              <div>
+                {hasilDiagnosa
+                  .slice(1)
+                  .map(([penyakitNama, { belief, gejalaCocok }]) => (
+                    <div key={penyakitNama} className="mt-4">
+                      <strong>{penyakitNama}</strong>: {belief.toFixed(2)}%
+                      <p>
+                        <strong>Deskripsi:</strong>{" "}
+                        {
+                          penyakitList.find((p) => p.nama === penyakitNama)
+                            ?.deskripsi
+                        }
+                      </p>
+                      <p>
+                        <strong>Solusi:</strong>{" "}
+                        {
+                          penyakitList.find((p) => p.nama === penyakitNama)
+                            ?.solusi
+                        }
+                      </p>
+                      <p>
+                        <strong>Gejala terdeteksi:</strong>{" "}
+                        {gejalaCocok.join(", ")}
+                      </p>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
