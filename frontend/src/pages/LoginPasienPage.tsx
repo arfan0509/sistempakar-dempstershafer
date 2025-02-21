@@ -1,10 +1,12 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
+import { FiEye, FiEyeOff } from "react-icons/fi"; // ✅ Import ikon show/hide password
 
 const LoginPasienPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // ✅ State untuk toggle password
   const { login } = useContext(AuthContext);
 
   const handleLogin = async () => {
@@ -26,34 +28,67 @@ const LoginPasienPage: React.FC = () => {
 
   return (
     <div
-      className="flex items-center justify-center min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: 'url("/assets/kucing2.jpg")' }}
+      className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: 'url("/assets/login-pasien.jpg")' }} // ✅ Ganti dengan gambar pasien atau dokter
     >
-      <div className="absolute inset-0 bg-black opacity-50"></div>
-      <div className="relative z-10 p-8 bg-white bg-opacity-80 rounded-xl shadow-lg w-full max-w-md">
-        <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">
+      {/* ✅ Overlay Transparan dan Blur */}
+      <div className="absolute inset-0 bg-white bg-opacity-60 backdrop-blur-md"></div>
+
+      <div className="relative z-10 w-full max-w-md p-8 bg-white bg-opacity-90 rounded-2xl shadow-2xl">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
           Login Pasien
         </h2>
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-1">
+            Email <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="email"
+            placeholder="Masukkan email"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4F81C7] bg-white/90 text-gray-900"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+
+        <div className="mb-4 relative">
+          <label className="block text-gray-700 font-medium mb-1">
+            Password <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Masukkan password"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4F81C7] pr-12 bg-white/90 text-gray-900"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <div
+              className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-gray-600 hover:text-gray-900"
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? <FiEyeOff size={22} /> : <FiEye size={22} />}
+            </div>
+          </div>
+        </div>
+
         <button
-          className="w-full py-3 text-white bg-[#4F81C7] rounded-lg hover:bg-[#3e6b99] transition duration-300"
+          className="w-full py-3 text-white bg-[#4F81C7] rounded-lg hover:bg-[#3e6b99] transition duration-300 font-semibold shadow-md"
           onClick={handleLogin}
         >
           Login
         </button>
+        {/* ✅ Tombol daftar bagi yang belum punya akun */}
+        <p className="text-center text-gray-600 mt-4">
+          Belum punya akun?{" "}
+          <button
+            className="text-[#4F81C7] font-semibold hover:underline"
+            onClick={() => navigate("/daftar")}
+          >
+            Daftar di sini
+          </button>
+        </p>
       </div>
     </div>
   );
