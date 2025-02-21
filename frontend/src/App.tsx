@@ -10,6 +10,7 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPasienPage";
 import LoginAdminPage from "./pages/LoginAdminPage";
 import LoginPasienPage from "./pages/LoginPasienPage";
+import RegisterPasienPage from "./pages/RegisterPasienPage"; // ✅ Import halaman daftar pasien
 import SistemPakarPage from "./pages/SistemPakarPage";
 import Dashboard from "./pages/Dashboard";
 import DataPenyakitDanSolusi from "./pages/DataPenyakitDanSolusi";
@@ -58,6 +59,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin-login" element={<LoginAdminPage />} />
           <Route path="/pasien-login" element={<LoginPasienPage />} />
+          <Route path="/pasien-register" element={<RegisterPasienPage />} /> {/* ✅ Tambahkan route daftar pasien */}
 
           {/* ✅ Halaman Pasien */}
           <Route

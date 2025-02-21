@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
 import { AuthContext } from "../context/AuthContext";
 import { FiEye, FiEyeOff } from "react-icons/fi"; // ✅ Import ikon show/hide password
 
@@ -8,6 +9,7 @@ const LoginPasienPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); // ✅ State untuk toggle password
   const { login } = useContext(AuthContext);
+  const navigate = useNavigate(); // ✅ Gunakan useNavigate
 
   const handleLogin = async () => {
     try {
@@ -79,12 +81,13 @@ const LoginPasienPage: React.FC = () => {
         >
           Login
         </button>
+
         {/* ✅ Tombol daftar bagi yang belum punya akun */}
         <p className="text-center text-gray-600 mt-4">
           Belum punya akun?{" "}
           <button
-            className="text-[#4F81C7] font-semibold hover:underline"
-            onClick={() => navigate("/daftar")}
+            className="text-[#4F81C7] font-semibold hover:underline focus:outline-none"
+            onClick={() => navigate("/pasien-register")} // ✅ Perbaikan dengan useNavigate
           >
             Daftar di sini
           </button>
