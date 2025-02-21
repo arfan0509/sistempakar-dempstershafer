@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 import { FiEdit, FiTrash, FiPlus } from "react-icons/fi";
-import ModalTambahGejala from "../components/ModalTambahGejala";
-import ModalEditGejala from "../components/ModalEditGejala";
-import ModalKonfirmasi from "../components/ModalKonfirmasi"; // Import ModalKonfirmasi
+import ModalTambahGejala from "../../components/admin/ModalTambahGejala";
+import ModalEditGejala from "../../components/admin/ModalEditGejala";
+import ModalKonfirmasi from "../../components/ModalKonfirmasi"; // Import ModalKonfirmasi
 
 const DataGejala = () => {
   const [isModalTambahOpen, setIsModalTambahOpen] = useState(false);
@@ -33,8 +33,8 @@ const DataGejala = () => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      const response = await axios.get(
-        "http://localhost:5000/api/gejala",
+      const response = await axiosInstance .get(
+        "/gejala",
         headers
       );
       setGejalaData(response.data);
@@ -60,15 +60,18 @@ const DataGejala = () => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      await axios.post(
-        "http://localhost:5000/api/gejala/tambah",
+      await axiosInstance .post(
+        "/gejala/tambah",
         newData,
         headers
       );
       fetchGejala();
       setIsModalTambahOpen(false);
     } catch (error) {
-      console.error("Error adding gejala:", error.response?.data || error.message);
+      console.error(
+        "Error adding gejala:",
+        error.response?.data || error.message
+      );
     }
   };
 
@@ -77,14 +80,17 @@ const DataGejala = () => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      await axios.delete(
-        `http://localhost:5000/api/gejala/hapus/${id}`,
+      await axiosInstance .delete(
+        `/gejala/hapus/${id}`,
         headers
       );
       fetchGejala();
       setIsDeleteModalOpen(false);
     } catch (error) {
-      console.error("Error deleting gejala:", error.response?.data || error.message);
+      console.error(
+        "Error deleting gejala:",
+        error.response?.data || error.message
+      );
     }
   };
 
@@ -93,15 +99,18 @@ const DataGejala = () => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      await axios.put(
-        `http://localhost:5000/api/gejala/update/${updatedData.id_gejala}`,
+      await axiosInstance .put(
+        `/gejala/update/${updatedData.id_gejala}`,
         updatedData,
         headers
       );
       fetchGejala();
       setIsModalEditOpen(false);
     } catch (error) {
-      console.error("Error updating gejala:", error.response?.data || error.message);
+      console.error(
+        "Error updating gejala:",
+        error.response?.data || error.message
+      );
     }
   };
 

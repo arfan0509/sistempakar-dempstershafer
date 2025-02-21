@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import SuccessModal from "../components/SuccessModal"; // ✅ Import modal berhasil
+import SuccessModal from "../../components/SuccessModal"; // ✅ Import modal berhasil
+import axiosInstance from "../../api/axiosInstance";
 
 const RegisterPasienPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -46,7 +46,7 @@ const RegisterPasienPage: React.FC = () => {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/pasien/register", formData);
+      await axiosInstance.post("/pasien/register", formData);
       setShowSuccessModal(true); // ✅ Tampilkan modal berhasil
     } catch (error: any) {
       console.error("Register error:", error);

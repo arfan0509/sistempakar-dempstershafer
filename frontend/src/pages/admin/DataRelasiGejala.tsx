@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 import { FiEdit, FiTrash, FiPlus } from "react-icons/fi";
-import ModalTambahRelasi from "../components/ModalTambahRelasi";
-import ModalEditRelasi from "../components/ModalEditRelasi";
-import ModalKonfirmasi from "../components/ModalKonfirmasi"; // Import ModalKonfirmasi
+import ModalTambahRelasi from "../../components/admin/ModalTambahRelasi";
+import ModalEditRelasi from "../../components/admin/ModalEditRelasi";
+import ModalKonfirmasi from "../../components/ModalKonfirmasi"; // Import ModalKonfirmasi
 
 const DataRelasiGejala = () => {
   const [isModalTambahOpen, setIsModalTambahOpen] = useState(false);
@@ -18,14 +18,14 @@ const DataRelasiGejala = () => {
   // ✅ Ambil Data Relasi, Penyakit, dan Gejala
   const fetchData = async () => {
     try {
-      const relasiResponse = await axios.get(
-        "http://localhost:5000/api/relasi"
+      const relasiResponse = await axiosInstance.get(
+        "/relasi"
       );
-      const penyakitResponse = await axios.get(
-        "http://localhost:5000/api/penyakit"
+      const penyakitResponse = await axiosInstance.get(
+        "/penyakit"
       );
-      const gejalaResponse = await axios.get(
-        "http://localhost:5000/api/gejala"
+      const gejalaResponse = await axiosInstance.get(
+        "/gejala"
       );
 
       setRelasiData(relasiResponse.data);
@@ -53,8 +53,8 @@ const DataRelasiGejala = () => {
       const headers = getAuthHeaders();
       if (!headers) return;
 
-      await axios.post(
-        "http://localhost:5000/api/relasi/tambah",
+      await axiosInstance.post(
+        "/relasi/tambah",
         newData,
         headers
       );
@@ -73,8 +73,8 @@ const DataRelasiGejala = () => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      await axios.delete(
-        `http://localhost:5000/api/relasi/hapus/${id}`,
+      await axiosInstance.delete(
+        `/relasi/hapus/${id}`,
         headers
       );
       fetchData();
@@ -100,8 +100,8 @@ const DataRelasiGejala = () => {
       const headers = getAuthHeaders();
       if (!headers) return;
 
-      await axios.put(
-        `http://localhost:5000/api/relasi/update/${updatedData.id_relasi}`,
+      await axiosInstance.put(
+        `/relasi/update/${updatedData.id_relasi}`,
         updatedData,
         headers
       );

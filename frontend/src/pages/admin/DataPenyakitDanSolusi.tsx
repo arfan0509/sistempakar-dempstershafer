@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 import { FiEdit, FiTrash, FiPlus } from "react-icons/fi";
-import ModalTambahPenyakit from "../components/ModalTambahPenyakit";
-import ModalEditPenyakit from "../components/ModalEditPenyakit";
-import ModalKonfirmasi from "../components/ModalKonfirmasi"; // Import ModalKonfirmasi
+import ModalTambahPenyakit from "../../components/admin/ModalTambahPenyakit";
+import ModalEditPenyakit from "../../components/admin/ModalEditPenyakit";
+import ModalKonfirmasi from "../../components/ModalKonfirmasi"; // Import ModalKonfirmasi
 
 const DataPenyakit = () => {
   const [isModalTambahOpen, setIsModalTambahOpen] = useState(false);
@@ -33,13 +33,16 @@ const DataPenyakit = () => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      const response = await axios.get(
-        "http://localhost:5000/api/penyakit",
+      const response = await axiosInstance .get(
+        "/penyakit",
         headers
       );
       setPenyakitData(response.data);
     } catch (error) {
-      console.error("Error fetching penyakit data:", error.response?.data || error.message);
+      console.error(
+        "Error fetching penyakit data:",
+        error.response?.data || error.message
+      );
     }
   };
 
@@ -52,15 +55,18 @@ const DataPenyakit = () => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      await axios.post(
-        "http://localhost:5000/api/penyakit/tambah",
+      await axiosInstance .post(
+        "/penyakit/tambah",
         newData,
         headers
       );
       fetchPenyakit();
       setIsModalTambahOpen(false);
     } catch (error) {
-      console.error("Error adding penyakit:", error.response?.data || error.message);
+      console.error(
+        "Error adding penyakit:",
+        error.response?.data || error.message
+      );
     }
   };
 
@@ -69,14 +75,17 @@ const DataPenyakit = () => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      await axios.delete(
-        `http://localhost:5000/api/penyakit/hapus/${id}`,
+      await axiosInstance .delete(
+        `/penyakit/hapus/${id}`,
         headers
       );
       fetchPenyakit();
       setIsDeleteModalOpen(false);
     } catch (error) {
-      console.error("Error deleting penyakit:", error.response?.data || error.message);
+      console.error(
+        "Error deleting penyakit:",
+        error.response?.data || error.message
+      );
     }
   };
 
@@ -85,21 +94,26 @@ const DataPenyakit = () => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      await axios.put(
-        `http://localhost:5000/api/penyakit/update/${updatedData.id_penyakit}`,
+      await axiosInstance .put(
+        `/penyakit/update/${updatedData.id_penyakit}`,
         updatedData,
         headers
       );
       fetchPenyakit();
       setIsModalEditOpen(false);
     } catch (error) {
-      console.error("Error updating penyakit:", error.response?.data || error.message);
+      console.error(
+        "Error updating penyakit:",
+        error.response?.data || error.message
+      );
     }
   };
 
   return (
     <div className="p-2 pt-4 w-full">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-4">Data Penyakit dan Solusi</h1>
+      <h1 className="text-2xl font-semibold text-gray-800 mb-4">
+        Data Penyakit dan Solusi
+      </h1>
 
       {/* Tombol Tambah Data */}
       <button
@@ -125,7 +139,10 @@ const DataPenyakit = () => {
 
           <tbody>
             {penyakitData.map((penyakit, index) => (
-              <tr key={penyakit.id_penyakit} className="bg-white border-b hover:bg-gray-50">
+              <tr
+                key={penyakit.id_penyakit}
+                className="bg-white border-b hover:bg-gray-50"
+              >
                 <td className="px-4 py-4 border">{index + 1}</td>
                 <td className="px-4 py-4 border">{penyakit.kode_penyakit}</td>
                 <td className="px-4 py-4 border">{penyakit.nama_penyakit}</td>

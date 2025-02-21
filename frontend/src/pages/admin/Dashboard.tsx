@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 
 const Dashboard: React.FC = () => {
   const [penyakitCount, setPenyakitCount] = useState(0);
   const [gejalaCount, setGejalaCount] = useState(0);
-  const [loading, setLoading] = useState(true); // Tambahkan loading state
+  const [setLoading] = useState(true); // Tambahkan loading state
 
   // ✅ Fungsi untuk mengambil token autentikasi dari localStorage
   const getAuthHeaders = () => {
@@ -23,12 +23,12 @@ const Dashboard: React.FC = () => {
       const headers = getAuthHeaders();
       if (!headers) return; // Jika token tidak ada, hentikan eksekusi
 
-      const penyakitResponse = await axios.get(
-        "http://localhost:5000/api/penyakit",
+      const penyakitResponse = await axiosInstance .get(
+        "/penyakit",
         headers
       );
-      const gejalaResponse = await axios.get(
-        "http://localhost:5000/api/gejala",
+      const gejalaResponse = await axiosInstance .get(
+        "/gejala",
         headers
       );
 

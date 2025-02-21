@@ -7,16 +7,16 @@ import {
 } from "react-router-dom";
 
 import LandingPage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPasienPage";
-import LoginAdminPage from "./pages/LoginAdminPage";
-import LoginPasienPage from "./pages/LoginPasienPage";
-import RegisterPasienPage from "./pages/RegisterPasienPage"; // ✅ Import halaman daftar pasien
-import SistemPakarPage from "./pages/SistemPakarPage";
-import Dashboard from "./pages/Dashboard";
-import DataPenyakitDanSolusi from "./pages/DataPenyakitDanSolusi";
-import DataGejala from "./pages/DataGejala";
-import DataRelasiGejala from "./pages/DataRelasiGejala";
-import AdminSidebar from "./components/AdminSidebar";
+import LoginPage from "./pages/user/LoginPasienPage";
+import LoginAdminPage from "./pages/admin/LoginAdminPage";
+import LoginPasienPage from "./pages/user/LoginPasienPage";
+import RegisterPasienPage from "./pages/user/RegisterPasienPage"; // ✅ Import halaman daftar pasien
+import SistemPakarPage from "./pages/user/SistemPakarPage";
+import Dashboard from "./pages/admin/Dashboard";
+import DataPenyakitDanSolusi from "./pages/admin/DataPenyakitDanSolusi";
+import DataGejala from "./pages/admin/DataGejala";
+import DataRelasiGejala from "./pages/admin/DataRelasiGejala";
+import AdminSidebar from "./components/admin/AdminSidebar";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
 
 const LoadingScreen = () => (
@@ -59,8 +59,11 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin-login" element={<LoginAdminPage />} />
           <Route path="/pasien-login" element={<LoginPasienPage />} />
-          <Route path="/pasien-register" element={<RegisterPasienPage />} /> {/* ✅ Tambahkan route daftar pasien */}
-
+          <Route
+            path="/pasien-register"
+            element={<RegisterPasienPage />}
+          />{" "}
+          {/* ✅ Tambahkan route daftar pasien */}
           {/* ✅ Halaman Pasien */}
           <Route
             path="/sistem-pakar"
@@ -70,7 +73,6 @@ function App() {
               </PrivateRoutePasien>
             }
           />
-
           {/* ✅ Halaman Admin */}
           <Route
             path="/admin-dashboard"

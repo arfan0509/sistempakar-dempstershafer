@@ -1,26 +1,22 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
-import { AuthContext } from "../context/AuthContext";
+import axiosInstance from "../../api/axiosInstance";
+import { AuthContext } from "../../context/AuthContext";
 import { FiEye, FiEyeOff } from "react-icons/fi"; // ✅ Import ikon show/hide password
 
-const LoginPasienPage: React.FC = () => {
+const LoginAdminPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); // ✅ State untuk toggle password
   const { login } = useContext(AuthContext);
-  const navigate = useNavigate(); // ✅ Gunakan useNavigate
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/pasien/login",
+      const response = await axiosInstance.post(
+        "/admin/login",
         { email, password }
       );
       const { accessToken, refreshToken } = response.data;
-
-      // ✅ Simpan refresh token dan access token ke localStorage
-      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("refreshToken", refreshToken); // ✅ Simpan refresh token
       login(accessToken, refreshToken); // ✅ Login dengan accessToken dan refreshToken
     } catch (error: any) {
       console.error("Login error:", error);
@@ -31,14 +27,14 @@ const LoginPasienPage: React.FC = () => {
   return (
     <div
       className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: 'url("/assets/login-pasien.jpg")' }} // ✅ Ganti dengan gambar pasien atau dokter
+      style={{ backgroundImage: 'url("/assets/login-admin.jpg")' }} // ✅ Background bertema admin dengan efek blur
     >
       {/* ✅ Overlay Transparan dan Blur */}
       <div className="absolute inset-0 bg-white bg-opacity-60 backdrop-blur-md"></div>
 
       <div className="relative z-10 w-full max-w-md p-8 bg-white bg-opacity-90 rounded-2xl shadow-2xl">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Login Pasien
+          Login Admin
         </h2>
 
         <div className="mb-4">
@@ -81,20 +77,9 @@ const LoginPasienPage: React.FC = () => {
         >
           Login
         </button>
-
-        {/* ✅ Tombol daftar bagi yang belum punya akun */}
-        <p className="text-center text-gray-600 mt-4">
-          Belum punya akun?{" "}
-          <button
-            className="text-[#4F81C7] font-semibold hover:underline focus:outline-none"
-            onClick={() => navigate("/pasien-register")} // ✅ Perbaikan dengan useNavigate
-          >
-            Daftar di sini
-          </button>
-        </p>
       </div>
     </div>
   );
 };
 
-export default LoginPasienPage;
+export default LoginAdminPage;

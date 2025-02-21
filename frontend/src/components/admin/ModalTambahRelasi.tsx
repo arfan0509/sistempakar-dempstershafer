@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 
 const ModalTambahRelasi = ({ isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -15,12 +15,8 @@ const ModalTambahRelasi = ({ isOpen, onClose, onSave }) => {
       // Fetch data penyakit dan gejala ketika modal dibuka
       const fetchData = async () => {
         try {
-          const penyakitResponse = await axios.get(
-            "http://localhost:5000/api/penyakit"
-          );
-          const gejalaResponse = await axios.get(
-            "http://localhost:5000/api/gejala"
-          );
+          const penyakitResponse = await axiosInstance.get("/penyakit");
+          const gejalaResponse = await axiosInstance.get("/gejala");
           setPenyakitData(penyakitResponse.data);
           setGejalaData(gejalaResponse.data);
         } catch (error) {

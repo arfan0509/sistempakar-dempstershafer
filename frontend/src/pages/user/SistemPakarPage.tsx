@@ -1,5 +1,7 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 
 const SistemPakarPage: React.FC = () => {
   const [gejalaList, setGejalaList] = useState<any[]>([]);
@@ -12,7 +14,7 @@ const SistemPakarPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/relasi");
+        const response = await axiosInstance.get("/relasi");
         const data = response.data;
 
         const gejalaMap: any = {};
