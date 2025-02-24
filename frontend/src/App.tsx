@@ -10,7 +10,7 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/user/LoginPasienPage";
 import LoginAdminPage from "./pages/admin/LoginAdminPage";
 import LoginPasienPage from "./pages/user/LoginPasienPage";
-import RegisterPasienPage from "./pages/user/RegisterPasienPage"; // ✅ Import halaman daftar pasien
+import RegisterPasienPage from "./pages/user/RegisterPasienPage";
 import SistemPakarPage from "./pages/user/SistemPakarPage";
 import Dashboard from "./pages/admin/Dashboard";
 import DataPenyakitDanSolusi from "./pages/admin/DataPenyakitDanSolusi";
@@ -18,6 +18,8 @@ import DataGejala from "./pages/admin/DataGejala";
 import DataRelasiGejala from "./pages/admin/DataRelasiGejala";
 import AdminSidebar from "./components/admin/AdminSidebar";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
+import AkunSaya from "./pages/user/AkunSaya"; // ✅ Akun Saya
+import UbahPassword from "./pages/user/UbahPassword"; // ✅ Ubah Password
 
 const LoadingScreen = () => (
   <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -55,15 +57,13 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
+          {/* ✅ Halaman Umum */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin-login" element={<LoginAdminPage />} />
           <Route path="/pasien-login" element={<LoginPasienPage />} />
-          <Route
-            path="/pasien-register"
-            element={<RegisterPasienPage />}
-          />{" "}
-          {/* ✅ Tambahkan route daftar pasien */}
+          <Route path="/pasien-register" element={<RegisterPasienPage />} />
+
           {/* ✅ Halaman Pasien */}
           <Route
             path="/sistem-pakar"
@@ -73,6 +73,23 @@ function App() {
               </PrivateRoutePasien>
             }
           />
+          <Route
+            path="/akun-saya"
+            element={
+              <PrivateRoutePasien>
+                <AkunSaya />
+              </PrivateRoutePasien>
+            }
+          />
+          <Route
+            path="/ubah-password"
+            element={
+              <PrivateRoutePasien>
+                <UbahPassword />
+              </PrivateRoutePasien>
+            }
+          />
+
           {/* ✅ Halaman Admin */}
           <Route
             path="/admin-dashboard"
@@ -114,6 +131,8 @@ function App() {
               </PrivateRouteAdmin>
             }
           />
+
+          {/* ✅ Fallback jika route tidak ditemukan */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>

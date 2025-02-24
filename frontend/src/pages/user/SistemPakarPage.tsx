@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../api/axiosInstance";
+import NavbarComponent from "../../components/user/NavbarComponent";
 
 const SistemPakarPage: React.FC = () => {
   const [gejalaList, setGejalaList] = useState<any[]>([]);
   const [penyakitList, setPenyakitList] = useState<any[]>([]);
   const [selectedGejala, setSelectedGejala] = useState<string[]>([]);
-  const [hasilDiagnosa, setHasilDiagnosa] = useState<any>([]); // Simpan hasil dalam bentuk array untuk manipulasi
-  const [showOtherPenyakit, setShowOtherPenyakit] = useState<boolean>(false); // State untuk mengontrol tampilan penyakit lainnya
+  const [hasilDiagnosa, setHasilDiagnosa] = useState<any>([]);
+  const [showOtherPenyakit, setShowOtherPenyakit] = useState<boolean>(false);
 
-  // Ambil data penyakit dan gejala dari API
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -33,7 +33,6 @@ const SistemPakarPage: React.FC = () => {
               gejala: [],
             };
           }
-
           penyakitMap[item.penyakit.kode_penyakit].gejala.push(
             item.gejala.kode_gejala
           );
@@ -45,14 +44,12 @@ const SistemPakarPage: React.FC = () => {
         console.error("Error fetching data:", error);
       }
     };
-
     fetchData();
   }, []);
 
-  // Fungsi untuk menghitung hasil diagnosa
   const handleDiagnosa = () => {
     if (selectedGejala.length === 0) {
-      alert("Silakan pilih setidaknya satu gejala untuk melakukan diagnosa!");
+      alert("Silakan pilih setidaknya satu gejala!");
       return;
     }
 
@@ -84,135 +81,146 @@ const SistemPakarPage: React.FC = () => {
       });
     }
 
-    // Urutkan hasil diagnosa berdasarkan prosentase
     const sortedResults = Object.entries(hasil).sort(
       (a, b) => b[1].belief - a[1].belief
     );
 
-    // Tampilkan hasil diagnosa
     setHasilDiagnosa(sortedResults);
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold text-center mb-6">
-        Sistem Pakar Kucing
-      </h1>
+    <>
+      <NavbarComponent />
+      <div className="container mx-auto pt-5">
+        {/* ✅ Banner Tunggal */}
+        <div className="relative w-full overflow-hidden rounded-lg shadow-lg mb-6">
+          <img
+            src={`/assets/banner-pakar.jpg`}
+            alt="Banner Pakar"
+            className="w-full object-cover h-40 sm:h-64 md:h-80 lg:h-[550px] transition duration-500"
+          />
+        </div>
 
-      <p className="text-lg text-gray-700 mb-6">
-        Selamat datang di Sistem Pakar Kucing! Sistem ini dapat membantu Anda
-        mendiagnosis masalah kesehatan pada kucing Anda berdasarkan gejala yang
-        terlihat. Pilih gejala yang terlihat pada kucing Anda untuk mendapatkan
-        diagnosis.
-      </p>
+        <p className="text-lg text-gray-700 mb-6 text-center">
+          Selamat datang di <strong>Sistem Pakar Kucing!</strong> Pilih gejala
+          yang sesuai untuk mendiagnosis masalah kesehatan pada kucing Anda.
+        </p>
 
-      {/* Pilihan Gejala */}
-      <form onSubmit={(e) => e.preventDefault()} className="mb-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {gejalaList.map((gejala, index) => (
-            <div key={index} className="flex items-center">
-              <input
-                type="checkbox"
-                value={gejala.kode}
-                onChange={(e) => {
-                  const { checked, value } = e.target;
-                  if (checked) {
-                    setSelectedGejala((prev) => [...prev, value]);
-                  } else {
-                    setSelectedGejala((prev) =>
-                      prev.filter((gejala) => gejala !== value)
-                    );
-                  }
-                }}
-                className="mr-2"
-              />
-              <label className="text-gray-700 text-sm">
-                {gejala.kode} - {gejala.nama}
+        {/* ✅ Pilihan Gejala */}
+        <form onSubmit={(e) => e.preventDefault()} className="mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {gejalaList.map((gejala, index) => (
+              <label
+                key={index}
+                className="flex items-center p-3 bg-white shadow rounded-lg cursor-pointer hover:bg-gray-50"
+              >
+                <input
+                  type="checkbox"
+                  value={gejala.kode}
+                  onChange={(e) => {
+                    const { checked, value } = e.target;
+                    if (checked) {
+                      setSelectedGejala((prev) => [...prev, value]);
+                    } else {
+                      setSelectedGejala((prev) =>
+                        prev.filter((gejala) => gejala !== value)
+                      );
+                    }
+                  }}
+                  className="w-5 h-5 rounded-full text-[#4F81C7] focus:ring-[#4F81C7]"
+                />
+                <span className="ml-3 text-gray-700 text-sm">
+                  {gejala.kode} - {gejala.nama}
+                </span>
               </label>
-            </div>
-          ))}
-        </div>
-
-        <button
-          onClick={handleDiagnosa}
-          className="w-full py-3 mt-4 text-white bg-[#4F81C7] rounded-lg hover:bg-[#3e6b99] transition duration-300"
-        >
-          Diagnosa
-        </button>
-      </form>
-
-      {/* Hasil Diagnosa */}
-      {hasilDiagnosa.length > 0 && (
-        <div className="hasil-diagnosa bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold mb-4">Hasil Diagnosa</h2>
-          <div>
-            {/* Penyakit dengan persentase terbesar */}
-            <div className="mb-4">
-              <strong>{hasilDiagnosa[0][0]}</strong>:{" "}
-              {hasilDiagnosa[0][1].belief.toFixed(2)}%
-              <p>
-                <strong>Deskripsi:</strong>{" "}
-                {
-                  penyakitList.find((p) => p.nama === hasilDiagnosa[0][0])
-                    ?.deskripsi
-                }
-              </p>
-              <p>
-                <strong>Solusi:</strong>{" "}
-                {
-                  penyakitList.find((p) => p.nama === hasilDiagnosa[0][0])
-                    ?.solusi
-                }
-              </p>
-              <p>
-                <strong>Gejala terdeteksi:</strong>{" "}
-                {hasilDiagnosa[0][1].gejalaCocok.join(", ")}
-              </p>
-            </div>
-
-            {/* Penyakit lainnya */}
-            <button
-              className="text-blue-600"
-              onClick={() => setShowOtherPenyakit(!showOtherPenyakit)}
-            >
-              {showOtherPenyakit
-                ? "Sembunyikan Penyakit Lainnya"
-                : "Tampilkan Penyakit Lainnya"}
-            </button>
-
-            {showOtherPenyakit && (
-              <div>
-                {hasilDiagnosa
-                  .slice(1)
-                  .map(([penyakitNama, { belief, gejalaCocok }]) => (
-                    <div key={penyakitNama} className="mt-4">
-                      <strong>{penyakitNama}</strong>: {belief.toFixed(2)}%
-                      <p>
-                        <strong>Deskripsi:</strong>{" "}
-                        {
-                          penyakitList.find((p) => p.nama === penyakitNama)
-                            ?.deskripsi
-                        }
-                      </p>
-                      <p>
-                        <strong>Solusi:</strong>{" "}
-                        {
-                          penyakitList.find((p) => p.nama === penyakitNama)
-                            ?.solusi
-                        }
-                      </p>
-                      <p>
-                        <strong>Gejala terdeteksi:</strong>{" "}
-                        {gejalaCocok.join(", ")}
-                      </p>
-                    </div>
-                  ))}
-              </div>
-            )}
+            ))}
           </div>
-        </div>
-      )}
-    </div>
+
+          <button
+            onClick={handleDiagnosa}
+            className="w-full py-3 mt-6 text-white bg-[#4F81C7] rounded-lg hover:bg-[#3e6b99] transition duration-300"
+          >
+            Diagnosa
+          </button>
+        </form>
+
+        {/* 📋 Hasil Diagnosa */}
+        {hasilDiagnosa.length > 0 && (
+          <div className="hasil-diagnosa bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-4 text-[#4F81C7]">
+              Hasil Diagnosa
+            </h2>
+            <div>
+              <div className="mb-4">
+                <strong className="text-lg">{hasilDiagnosa[0][0]}</strong>:{" "}
+                {hasilDiagnosa[0][1].belief.toFixed(2)}%
+                <p>
+                  <strong>Deskripsi:</strong>{" "}
+                  {
+                    penyakitList.find((p) => p.nama === hasilDiagnosa[0][0])
+                      ?.deskripsi
+                  }
+                </p>
+                <p>
+                  <strong>Solusi:</strong>{" "}
+                  {
+                    penyakitList.find((p) => p.nama === hasilDiagnosa[0][0])
+                      ?.solusi
+                  }
+                </p>
+                <p>
+                  <strong>Gejala terdeteksi:</strong>{" "}
+                  {hasilDiagnosa[0][1].gejalaCocok.join(", ")}
+                </p>
+              </div>
+
+              {/* 🔄 Penyakit Lainnya */}
+              <button
+                className="text-blue-600 underline mb-4"
+                onClick={() => setShowOtherPenyakit(!showOtherPenyakit)}
+              >
+                {showOtherPenyakit
+                  ? "Sembunyikan Penyakit Lainnya"
+                  : "Tampilkan Penyakit Lainnya"}
+              </button>
+
+              {showOtherPenyakit && (
+                <div className="grid gap-4">
+                  {hasilDiagnosa
+                    .slice(1)
+                    .map(([penyakitNama, { belief, gejalaCocok }]) => (
+                      <div
+                        key={penyakitNama}
+                        className="bg-gray-50 p-4 rounded-lg shadow-sm"
+                      >
+                        <strong>{penyakitNama}</strong>: {belief.toFixed(2)}%
+                        <p>
+                          <strong>Deskripsi:</strong>{" "}
+                          {
+                            penyakitList.find((p) => p.nama === penyakitNama)
+                              ?.deskripsi
+                          }
+                        </p>
+                        <p>
+                          <strong>Solusi:</strong>{" "}
+                          {
+                            penyakitList.find((p) => p.nama === penyakitNama)
+                              ?.solusi
+                          }
+                        </p>
+                        <p>
+                          <strong>Gejala terdeteksi:</strong>{" "}
+                          {gejalaCocok.join(", ")}
+                        </p>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
