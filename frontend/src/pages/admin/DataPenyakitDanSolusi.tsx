@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../api/axiosInstance";
-import { FiEdit, FiTrash, FiPlus } from "react-icons/fi";
+import { FiEdit, FiTrash, FiPlus, FiSearch } from "react-icons/fi";
 import ModalTambahPenyakit from "../../components/admin/ModalTambahPenyakit";
 import ModalEditPenyakit from "../../components/admin/ModalEditPenyakit";
-import ModalKonfirmasi from "../../components/ModalKonfirmasi"; // Import ModalKonfirmasi
+import ModalKonfirmasi from "../../components/ModalKonfirmasi";
 
 const DataPenyakit = () => {
   const [isModalTambahOpen, setIsModalTambahOpen] = useState(false);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
   const [penyakitData, setPenyakitData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [selectedPenyakit, setSelectedPenyakit] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [penyakitToDelete, setPenyakitToDelete] = useState(null);
 
-  // ✅ Fungsi untuk mendapatkan accessToken autentikasi
+  // ✅ Search & Filter states
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [kodeFilter, setKodeFilter] = useState("");
+
+  // ✅ Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [dataPerPage, setDataPerPage] = useState(5);
+
   const getAuthHeaders = () => {
-    const accessToken = localStorage.getItem("accessToken"); // Gunakan 'accessToken' yang konsisten
+    const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
       console.error("Token tidak ditemukan, silakan login ulang!");
       return null;
@@ -28,16 +37,13 @@ const DataPenyakit = () => {
     };
   };
 
-  // ✅ Ambil Data Penyakit dari Backend
   const fetchPenyakit = async () => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      const response = await axiosInstance .get(
-        "/penyakit",
-        headers
-      );
+      const response = await axiosInstance.get("/penyakit", headers);
       setPenyakitData(response.data);
+      setFilteredData(response.data);
     } catch (error) {
       console.error(
         "Error fetching penyakit data:",
@@ -50,16 +56,35 @@ const DataPenyakit = () => {
     fetchPenyakit();
   }, []);
 
-  // ✅ Tambah Data Penyakit
+  // ✅ Search & Filter Handler
+  useEffect(() => {
+    let filtered = [...penyakitData];
+
+    if (kodeFilter) {
+      filtered = filtered.filter((item) => item.kode_penyakit === kodeFilter);
+    }
+
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (item) =>
+          item.kode_penyakit
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          item.nama_penyakit.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredData(filtered);
+    setCurrentPage(1); // Reset ke halaman pertama saat filter berubah
+  }, [searchQuery, kodeFilter, penyakitData]);
+
+  const handleSearch = () => setSearchQuery(searchInput);
+
   const handleAddData = async (newData) => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      await axiosInstance .post(
-        "/penyakit/tambah",
-        newData,
-        headers
-      );
+      await axiosInstance.post("/penyakit/tambah", newData, headers);
       fetchPenyakit();
       setIsModalTambahOpen(false);
     } catch (error) {
@@ -70,15 +95,11 @@ const DataPenyakit = () => {
     }
   };
 
-  // ✅ Hapus Data Penyakit
   const handleDelete = async (id) => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      await axiosInstance .delete(
-        `/penyakit/hapus/${id}`,
-        headers
-      );
+      await axiosInstance.delete(`/penyakit/hapus/${id}`, headers);
       fetchPenyakit();
       setIsDeleteModalOpen(false);
     } catch (error) {
@@ -89,12 +110,11 @@ const DataPenyakit = () => {
     }
   };
 
-  // ✅ Edit Data Penyakit
   const handleEdit = async (updatedData) => {
     try {
       const headers = getAuthHeaders();
       if (!headers) return;
-      await axiosInstance .put(
+      await axiosInstance.put(
         `/penyakit/update/${updatedData.id_penyakit}`,
         updatedData,
         headers
@@ -109,13 +129,62 @@ const DataPenyakit = () => {
     }
   };
 
+  // ✅ Pagination Logic
+  const indexOfLastData = currentPage * dataPerPage;
+  const indexOfFirstData = indexOfLastData - dataPerPage;
+  const currentData = filteredData.slice(indexOfFirstData, indexOfLastData);
+  const totalPages = Math.ceil(filteredData.length / dataPerPage);
+
+  const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div className="p-2 pt-4 w-full">
       <h1 className="text-2xl font-semibold text-gray-800 mb-4">
         Data Penyakit dan Solusi
       </h1>
 
-      {/* Tombol Tambah Data */}
+      {/* 🔍 Search, Filter & Data Per Halaman */}
+      <div className="flex flex-col md:flex-row gap-4 mb-4 items-center w-full">
+        <div className="flex gap-2 w-full md:w-auto">
+          <input
+            type="text"
+            placeholder="Cari Kode/Nama Penyakit..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="border px-4 py-2 rounded-md focus:outline-none w-full"
+          />
+          <button
+            onClick={handleSearch}
+            className="bg-[#4F81C7] text-white px-4 py-2 rounded-md hover:bg-[#2E5077] transition"
+          >
+            <FiSearch />
+          </button>
+        </div>
+
+        <select
+          value={kodeFilter}
+          onChange={(e) => setKodeFilter(e.target.value)}
+          className="border px-4 py-2 rounded-md focus:outline-none w-full md:w-64"
+        >
+          <option value="">Filter Kode Penyakit</option>
+          {penyakitData.map((item) => (
+            <option key={item.kode_penyakit} value={item.kode_penyakit}>
+              {item.kode_penyakit}
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="number"
+          min="1"
+          value={dataPerPage}
+          onChange={(e) => setDataPerPage(Number(e.target.value))}
+          className="border px-4 py-2 rounded-md w-full md:w-32"
+          placeholder="Jumlah per halaman"
+        />
+      </div>
+
+      {/* ➕ Tombol Tambah Data */}
       <button
         onClick={() => setIsModalTambahOpen(true)}
         className="mb-4 bg-[#4F81C7] text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-[#2E5077] transition"
@@ -123,7 +192,7 @@ const DataPenyakit = () => {
         <FiPlus /> Tambah Data
       </button>
 
-      {/* Tabel */}
+      {/* 📋 Tabel Data Penyakit */}
       <div className="relative overflow-x-auto md:overflow-visible shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-center text-gray-500 border-collapse">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50">
@@ -136,14 +205,15 @@ const DataPenyakit = () => {
               <th className="px-4 py-3 border text-center">Aksi</th>
             </tr>
           </thead>
-
           <tbody>
-            {penyakitData.map((penyakit, index) => (
+            {currentData.map((penyakit, index) => (
               <tr
                 key={penyakit.id_penyakit}
                 className="bg-white border-b hover:bg-gray-50"
               >
-                <td className="px-4 py-4 border">{index + 1}</td>
+                <td className="px-4 py-4 border">
+                  {indexOfFirstData + index + 1}
+                </td>
                 <td className="px-4 py-4 border">{penyakit.kode_penyakit}</td>
                 <td className="px-4 py-4 border">{penyakit.nama_penyakit}</td>
                 <td className="px-4 py-4 border">{penyakit.deskripsi}</td>
@@ -155,7 +225,7 @@ const DataPenyakit = () => {
                         setSelectedPenyakit(penyakit);
                         setIsModalEditOpen(true);
                       }}
-                      className="border border-blue-500 text-blue-500 px-3 py-2 rounded-md w-24 h-7 flex items-center justify-center gap-1 hover:bg-blue-500 hover:text-white transition"
+                      className="border border-blue-500 text-blue-500 px-3 py-2 rounded-md w-24 flex items-center justify-center gap-1 hover:bg-blue-500 hover:text-white transition"
                     >
                       <FiEdit /> Edit
                     </button>
@@ -164,7 +234,7 @@ const DataPenyakit = () => {
                         setPenyakitToDelete(penyakit);
                         setIsDeleteModalOpen(true);
                       }}
-                      className="border border-red-700 text-red-700 px-3 py-2 rounded-md w-24 h-7 flex items-center justify-center gap-1 hover:bg-red-700 hover:text-white transition"
+                      className="border border-red-700 text-red-700 px-3 py-2 rounded-md w-24 flex items-center justify-center gap-1 hover:bg-red-700 hover:text-white transition"
                     >
                       <FiTrash /> Hapus
                     </button>
@@ -176,14 +246,43 @@ const DataPenyakit = () => {
         </table>
       </div>
 
-      {/* Modal Tambah Data */}
+      {/* 🔄 Pagination */}
+      <div className="flex justify-center mt-4 gap-2">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-3 py-1 rounded-md ${
+            currentPage === 1
+              ? "bg-gray-300"
+              : "bg-[#4F81C7] text-white hover:bg-[#2E5077]"
+          }`}
+        >
+          Sebelumnya
+        </button>
+        <span className="px-4 py-1 bg-gray-100 rounded-md">
+          Halaman {currentPage} dari {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-3 py-1 rounded-md ${
+            currentPage === totalPages
+              ? "bg-gray-300"
+              : "bg-[#4F81C7] text-white hover:bg-[#2E5077]"
+          }`}
+        >
+          Berikutnya
+        </button>
+      </div>
+
+      {/* 📝 Modal Tambah Data */}
       <ModalTambahPenyakit
         isOpen={isModalTambahOpen}
         onClose={() => setIsModalTambahOpen(false)}
         onSave={handleAddData}
       />
 
-      {/* Modal Edit Data */}
+      {/* 📝 Modal Edit Data */}
       {selectedPenyakit && (
         <ModalEditPenyakit
           isOpen={isModalEditOpen}
@@ -193,13 +292,13 @@ const DataPenyakit = () => {
         />
       )}
 
-      {/* Modal Konfirmasi Hapus */}
+      {/* 🗑️ Modal Konfirmasi Hapus */}
       {penyakitToDelete && (
         <ModalKonfirmasi
           isOpen={isDeleteModalOpen}
           message={`Apakah Anda yakin ingin menghapus penyakit ${penyakitToDelete.nama_penyakit}?`}
           onConfirm={() => handleDelete(penyakitToDelete.id_penyakit)}
-          onCancel={() => setIsDeleteModalOpen(false)} // Close modal if canceled
+          onCancel={() => setIsDeleteModalOpen(false)}
         />
       )}
     </div>
