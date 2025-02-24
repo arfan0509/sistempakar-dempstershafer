@@ -41,9 +41,8 @@ const Sidebar = ({
 
       <div
         className={`fixed inset-y-0 left-0 w-64 bg-[#4F81C7] text-white p-4 transform transition-transform duration-300 ease-in-out z-50
-          ${
-            isOpen ? "translate-x-0" : "-translate-x-full"
-          } md:static md:translate-x-0`}
+    ${isOpen ? "translate-x-0" : "-translate-x-full"} 
+    md:static md:translate-x-0 h-screen`}
       >
         {/* Header Sidebar: Logo & Admin Menu */}
         <div className="flex items-center gap-2 p-2 mb-4 border-b border-white">
@@ -136,22 +135,29 @@ const AdminSidebar = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen overflow-hidden">
-      {/* Sidebar for desktop & mobile */}
+    <div className="flex min-h-screen">
+      {/* Sidebar tetap di tempat saat scroll */}
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      <div className="flex-1 min-w-0">
-        {/* Mobile Navbar */}
-        <div className="md:hidden bg-[#4F81C7] text-white p-4 flex justify-between items-center">
+      {/* Konten utama yang bisa di-scroll */}
+      <div className="flex-1 min-w-0 h-screen overflow-y-auto">
+        {/* ✅ Navbar mobile dengan logo + Admin Menu di kiri */}
+        <div className="md:hidden bg-[#4F81C7] text-white p-4 flex items-center gap-2 sticky top-0 z-50">
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="focus:outline-none"
           >
             <FiMenu size={24} />
           </button>
+          <img
+            src="/assets/logo-admin.svg"
+            alt="Logo"
+            className="h-8 w-auto"
+          />
+          <span className="text-lg font-semibold">Admin Menu</span>
         </div>
 
-        {/* Main Content */}
+        {/* Main Content dengan scroll terpisah */}
         <div className="p-4">{children}</div>
       </div>
     </div>
