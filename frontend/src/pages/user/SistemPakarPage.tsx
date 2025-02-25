@@ -91,7 +91,7 @@ const SistemPakarPage: React.FC = () => {
   return (
     <>
       <NavbarComponent />
-      <div className="container mx-auto pt-5">
+      <div className="container mx-auto pt-20">
         {/* ✅ Banner Tunggal */}
         <div className="relative w-full overflow-hidden rounded-lg shadow-lg mb-6">
           <img

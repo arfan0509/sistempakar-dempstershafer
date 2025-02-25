@@ -18,7 +18,7 @@ const UbahPassword = () => {
 
     try {
       await axiosInstance.put("/pasien/change-password", {
-        oldPassword: form.oldPassword,
+        currentPassword: form.oldPassword, // 🔧 Ubah oldPassword jadi currentPassword
         newPassword: form.newPassword,
       });
       setMessage("✅ Password berhasil diubah.");

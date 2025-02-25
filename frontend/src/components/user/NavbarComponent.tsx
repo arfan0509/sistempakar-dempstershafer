@@ -37,7 +37,7 @@ const NavbarComponent: React.FC = () => {
   };
 
   return (
-    <nav className="bg-[#4F81C7] p-4 shadow-md">
+    <nav className="bg-[#4F81C7] p-4 shadow-md fixed top-0 left-0 w-full z-50">
       <div className="container mx-auto flex justify-between items-center">
         {/* ✅ Logo dan Judul */}
         <div className="flex items-center gap-2">

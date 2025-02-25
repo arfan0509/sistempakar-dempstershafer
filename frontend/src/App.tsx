@@ -18,8 +18,7 @@ import DataGejala from "./pages/admin/DataGejala";
 import DataRelasiGejala from "./pages/admin/DataRelasiGejala";
 import AdminSidebar from "./components/admin/AdminSidebar";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
-import AkunSaya from "./pages/user/AkunSaya"; // ✅ Akun Saya
-import UbahPassword from "./pages/user/UbahPassword"; // ✅ Ubah Password
+import ProfilePage from "./pages/user/ProfilePage";
 
 const LoadingScreen = () => (
   <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -77,18 +76,11 @@ function App() {
             path="/akun-saya"
             element={
               <PrivateRoutePasien>
-                <AkunSaya />
+                <ProfilePage />
               </PrivateRoutePasien>
             }
           />
-          <Route
-            path="/ubah-password"
-            element={
-              <PrivateRoutePasien>
-                <UbahPassword />
-              </PrivateRoutePasien>
-            }
-          />
+         
 
           {/* ✅ Halaman Admin */}
           <Route
