@@ -84,29 +84,47 @@ exports.registerPasien = async (req, res) => {
 // ✅ Login Pasien (Tetap Sama)
 exports.loginPasien = async (req, res) => {
   const { email, password } = req.body;
+
   try {
+    // Cek apakah pasien dengan email tersebut ada
     const pasien = await Pasien.findOne({ where: { email } });
-    if (!pasien)
+
+    if (!pasien) {
       return res.status(400).json({ message: "Email tidak ditemukan" });
+    }
 
+    // Cek apakah password yang dimasukkan benar
     const isMatch = await bcrypt.compare(password, pasien.password);
-    if (!isMatch) return res.status(400).json({ message: "Password salah" });
+    if (!isMatch) {
+      return res.status(400).json({ message: "Password salah" });
+    }
 
+    // Generate access token
     const accessToken = jwt.sign(
       { id: pasien.id_pasien, email: pasien.email, role: "pasien" },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
+    // Generate refresh token
     const refreshToken = jwt.sign(
       { id: pasien.id_pasien, email: pasien.email, role: "pasien" },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    res.json({ message: "Login berhasil", accessToken, refreshToken });
+    // Kirimkan token dan id pasien ke client
+    res.json({
+      message: "Login berhasil",
+      accessToken,
+      refreshToken,
+      id_pasien: pasien.id_pasien, // Pastikan id pasien juga dikirimkan untuk kebutuhan frontend
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Login error:", error);
+    res
+      .status(500)
+      .json({ error: "Terjadi kesalahan server, silakan coba lagi" });
   }
 };
 

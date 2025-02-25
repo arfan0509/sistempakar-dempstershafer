@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import NavbarComponent from "../../components/user/NavbarComponent";
+import LoadingModal from "../../components/user/LoadingModal";
 
 const SistemPakarPage: React.FC = () => {
   const [gejalaList, setGejalaList] = useState<any[]>([]);
@@ -8,6 +9,22 @@ const SistemPakarPage: React.FC = () => {
   const [selectedGejala, setSelectedGejala] = useState<string[]>([]);
   const [hasilDiagnosa, setHasilDiagnosa] = useState<any>([]);
   const [showOtherPenyakit, setShowOtherPenyakit] = useState<boolean>(false);
+
+  // State untuk informasi kucing
+  const [kucingData, setKucingData] = useState({
+    nama: "",
+    jenisKelamin: "",
+    usia: "",
+    warnaBulu: "",
+  });
+
+  // State untuk mengontrol apakah gejala dapat ditampilkan
+  const [isGejalaVisible, setIsGejalaVisible] = useState<boolean>(false);
+
+  // State untuk kontrol loading modal
+  const [loading, setLoading] = useState<boolean>(false);
+  // State untuk menunjukkan checklist setelah selesai
+  const [done, setDone] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,7 +64,7 @@ const SistemPakarPage: React.FC = () => {
     fetchData();
   }, []);
 
-  const handleDiagnosa = () => {
+  const handleDiagnosa = async () => {
     if (selectedGejala.length === 0) {
       alert("Silakan pilih setidaknya satu gejala!");
       return;
@@ -86,12 +103,78 @@ const SistemPakarPage: React.FC = () => {
     );
 
     setHasilDiagnosa(sortedResults);
+
+    // Siapkan data untuk dikirim ke backend
+    const diagnosisData = {
+      id_pasien: localStorage.getItem("id_pasien"), // Pastikan ini ada di localStorage
+      nama_kucing: kucingData.nama,
+      jenis_kelamin: kucingData.jenisKelamin,
+      usia: kucingData.usia,
+      warna_bulu: kucingData.warnaBulu,
+      hasil_diagnosis: {
+        penyakit: sortedResults[0][0], // Penyakit dengan belief tertinggi
+        solusi: penyakitList.find((p) => p.nama === sortedResults[0][0])
+          ?.solusi,
+        gejala_terdeteksi: sortedResults[0][1].gejalaCocok,
+      },
+    };
+
+    // Show loading modal
+    setLoading(true);
+    setDone(false); // Reset checklist before starting the loading
+
+    try {
+      // Kirim data diagnosis ke backend
+      const response = await axiosInstance.post(
+        "/diagnosis/tambah",
+        diagnosisData
+      );
+      console.log("Diagnosis berhasil disimpan:", response.data.message);
+
+      // Hide loading modal after 3 seconds
+      setTimeout(() => {
+        setDone(true); // Show "Diagnosis Selesai" after 3 seconds
+        setTimeout(() => {
+          setLoading(false); // Hide loading modal after 2 more seconds
+        }, 2000);
+      }, 3000);
+    } catch (error) {
+      console.error("Error saving diagnosis:", error);
+      alert("Gagal menyimpan diagnosis.");
+      setLoading(false);
+    }
   };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setKucingData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setKucingData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  // Fungsi untuk mengecek apakah semua data kucing sudah terisi
+  const checkIfGejalaVisible = () => {
+    const { nama, jenisKelamin, usia, warnaBulu } = kucingData;
+    if (nama && jenisKelamin && usia && warnaBulu) {
+      setIsGejalaVisible(true); // Jika sudah lengkap, tampilkan pilihan gejala
+    } else {
+      setIsGejalaVisible(false); // Jika belum lengkap, sembunyikan pilihan gejala
+    }
+  };
+
+  useEffect(() => {
+    checkIfGejalaVisible();
+  }, [kucingData]); // Memantau perubahan pada data kucing
 
   return (
     <>
       <NavbarComponent />
-      <div className="container mx-auto pt-20">
+      <div className="container mx-auto pt-20 p-3">
         {/* ✅ Banner Tunggal */}
         <div className="relative w-full overflow-hidden rounded-lg shadow-lg mb-6">
           <img
@@ -106,43 +189,100 @@ const SistemPakarPage: React.FC = () => {
           yang sesuai untuk mendiagnosis masalah kesehatan pada kucing Anda.
         </p>
 
-        {/* ✅ Pilihan Gejala */}
+        {/* ✅ Form Data Kucing */}
         <form onSubmit={(e) => e.preventDefault()} className="mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {gejalaList.map((gejala, index) => (
-              <label
-                key={index}
-                className="flex items-center p-3 bg-white shadow rounded-lg cursor-pointer hover:bg-gray-50"
-              >
-                <input
-                  type="checkbox"
-                  value={gejala.kode}
-                  onChange={(e) => {
-                    const { checked, value } = e.target;
-                    if (checked) {
-                      setSelectedGejala((prev) => [...prev, value]);
-                    } else {
-                      setSelectedGejala((prev) =>
-                        prev.filter((gejala) => gejala !== value)
-                      );
-                    }
-                  }}
-                  className="w-5 h-5 rounded-full text-[#4F81C7] focus:ring-[#4F81C7]"
-                />
-                <span className="ml-3 text-gray-700 text-sm">
-                  {gejala.kode} - {gejala.nama}
-                </span>
-              </label>
-            ))}
-          </div>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-700">Nama Kucing</label>
+              <input
+                type="text"
+                name="nama"
+                value={kucingData.nama}
+                onChange={handleInputChange}
+                className="p-3 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#4F81C7]"
+                placeholder="Nama Kucing"
+              />
+            </div>
 
-          <button
-            onClick={handleDiagnosa}
-            className="w-full py-3 mt-6 text-white bg-[#4F81C7] rounded-lg hover:bg-[#3e6b99] transition duration-300"
-          >
-            Diagnosa
-          </button>
+            <div>
+              <label className="block text-gray-700">Jenis Kelamin</label>
+              <select
+                name="jenisKelamin"
+                value={kucingData.jenisKelamin}
+                onChange={handleSelectChange}
+                className="p-3 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#4F81C7]"
+              >
+                <option value="">Pilih Jenis Kelamin</option>
+                <option value="Jantan">Jantan</option>
+                <option value="Betina">Betina</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-gray-700">Usia</label>
+              <input
+                type="text"
+                name="usia"
+                value={kucingData.usia}
+                onChange={handleInputChange}
+                className="p-3 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#4F81C7]"
+                placeholder="contoh: 3 bulan/1 tahun"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700">Warna Bulu</label>
+              <input
+                type="text"
+                name="warnaBulu"
+                value={kucingData.warnaBulu}
+                onChange={handleInputChange}
+                className="p-3 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#4F81C7]"
+                placeholder="Warna Bulu Kucing"
+              />
+            </div>
+          </div>
         </form>
+
+        {/* ✅ Pilihan Gejala */}
+        {isGejalaVisible && (
+          <form onSubmit={(e) => e.preventDefault()} className="mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {gejalaList.map((gejala, index) => (
+                <label
+                  key={index}
+                  className="flex items-center p-3 bg-white shadow rounded-lg cursor-pointer hover:bg-gray-50"
+                >
+                  <input
+                    type="checkbox"
+                    value={gejala.kode}
+                    onChange={(e) => {
+                      const { checked, value } = e.target;
+                      if (checked) {
+                        setSelectedGejala((prev) => [...prev, value]);
+                      } else {
+                        setSelectedGejala((prev) =>
+                          prev.filter((gejala) => gejala !== value)
+                        );
+                      }
+                    }}
+                    className="w-5 h-5 rounded-full text-[#4F81C7] focus:ring-[#4F81C7]"
+                  />
+                  <span className="ml-3 text-gray-700 text-sm">
+                    {gejala.kode} - {gejala.nama}
+                  </span>
+                </label>
+              ))}
+            </div>
+
+            <button
+              onClick={handleDiagnosa}
+              className="w-full py-3 mt-6 text-white bg-[#4F81C7] rounded-lg hover:bg-[#3e6b99] transition duration-300"
+            >
+              Diagnosa
+            </button>
+          </form>
+        )}
 
         {/* 📋 Hasil Diagnosa */}
         {hasilDiagnosa.length > 0 && (
@@ -220,6 +360,8 @@ const SistemPakarPage: React.FC = () => {
           </div>
         )}
       </div>
+      {/* Loading Modal Component */}
+      {loading && <LoadingModal />}
     </>
   );
 };

@@ -37,11 +37,12 @@ const LoginPasienPage: React.FC = () => {
         email,
         password,
       });
-      const { accessToken, refreshToken } = response.data;
+      const { accessToken, refreshToken, id_pasien } = response.data;
   
       // Pastikan kedua token disimpan
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("id_pasien", id_pasien);
   
       login(accessToken, refreshToken); // Login dengan token
     } catch (error: any) {
