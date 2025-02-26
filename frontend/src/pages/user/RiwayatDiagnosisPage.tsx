@@ -98,7 +98,9 @@ const RiwayatDiagnosisPage: React.FC = () => {
 
         {/* 📝 Judul Halaman */}
         <div className="mb-6 text-center">
-          <h2 className="text-3xl font-bold text-gray-800">Riwayat Diagnosis</h2>
+          <h2 className="text-3xl font-bold text-gray-800">
+            Riwayat Diagnosis
+          </h2>
           <p className="text-lg text-gray-600">
             Lihat riwayat diagnosis kucing Anda disini.
           </p>
@@ -151,37 +153,52 @@ const RiwayatDiagnosisPage: React.FC = () => {
                   </div>
 
                   {/* 💉 Diagnosis Utama */}
-                  <div className="bg-[#4F81C7] text-white py-3 px-4 rounded-lg shadow mb-4 flex justify-between items-center">
-                    <h3 className="text-2xl font-bold flex items-center">
-                      <FaStethoscope className="mr-2" />
-                      {diagnosis.hasil_diagnosis.penyakit}
-                    </h3>
+                  <div className="bg-[#4F81C7] text-white py-5 px-6 rounded-lg shadow-lg mb-6 flex justify-between items-center">
+                    <div>
+                      <h3 className="text-3xl font-bold flex items-center">
+                        <FaStethoscope className="mr-3" />
+                        {diagnosis.hasil_diagnosis.penyakit}
+                      </h3>
+                      <p className="text-sm opacity-80">
+                        Hasil diagnosis utama
+                      </p>
+                    </div>
                     <button
                       onClick={() => handlePrint(diagnosis)}
-                      className="bg-white text-[#4F81C7] rounded-full p-2 shadow hover:bg-gray-200 transition"
+                      className="bg-white text-[#4F81C7] rounded-full p-3 shadow hover:bg-gray-200 transition"
                       title="Cetak Diagnosis"
                     >
-                      <FiPrinter size={22} />
+                      <FiPrinter size={24} />
                     </button>
                   </div>
 
-                  {/* 📝 Gejala Terdeteksi */}
-                  <div className="mt-4">
-                    <h4 className="text-xl font-semibold text-gray-700">
-                      Gejala Terdeteksi
+                  {/* 📝 Gejala Dipilih */}
+                  <div className="mb-6">
+                    <h4 className="text-xl font-semibold text-gray-700 mb-2">
+                      Gejala yang Dipilih
                     </h4>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-3 mt-2">
                       {diagnosis.hasil_diagnosis.gejala_terdeteksi.map(
                         (gejala: string, idx: number) => (
                           <span
                             key={idx}
-                            className="bg-[#4F81C7] text-white text-sm py-1 px-3 rounded-full"
+                            className="bg-[#E3F2FD] text-[#4F81C7] text-sm py-1 px-4 rounded-full shadow-sm"
                           >
                             {gejala}
                           </span>
                         )
                       )}
                     </div>
+                  </div>
+
+                  {/* 💡 Solusi */}
+                  <div className="bg-[#E3F2FD] text-[#4F81C7] p-6 rounded-lg shadow-md">
+                    <h4 className="text-xl font-semibold mb-2">
+                      💡 Solusi yang Disarankan:
+                    </h4>
+                    <p className="leading-relaxed">
+                      {diagnosis.hasil_diagnosis.solusi}
+                    </p>
                   </div>
 
                   {/* 🌟 Kemungkinan Penyakit Lain */}
@@ -231,23 +248,25 @@ const RiwayatDiagnosisPage: React.FC = () => {
                   {/* 🕒 Tanggal & Waktu */}
                   <div className="mt-6 text-sm text-gray-500 flex items-center justify-start space-x-2">
                     <p>
-                      {new Date(
-                        diagnosis.tanggal_diagnosis
-                      ).toLocaleDateString("id-ID", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                      {new Date(diagnosis.tanggal_diagnosis).toLocaleDateString(
+                        "id-ID",
+                        {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
                     </p>
                     <span>|</span>
                     <p>
-                      {new Date(
-                        diagnosis.tanggal_diagnosis
-                      ).toLocaleTimeString("id-ID", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}{" "}
+                      {new Date(diagnosis.tanggal_diagnosis).toLocaleTimeString(
+                        "id-ID",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )}{" "}
                       WIB
                     </p>
                   </div>

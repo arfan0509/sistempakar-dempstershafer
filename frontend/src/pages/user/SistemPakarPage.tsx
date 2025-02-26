@@ -100,25 +100,28 @@ const SistemPakarPage: React.FC = () => {
     }
 
     const sortedResults = Object.entries(hasil).sort(
-      (a, b) => b[1].belief - a[1].belief
+      (a, b) =>
+        (b[1] as { belief: number }).belief -
+        (a[1] as { belief: number }).belief
     );
     setHasilDiagnosa(sortedResults);
 
     // 🔀 Identifikasi semua penyakit dengan persentase tertinggi yang sama
-    const highestBelief = sortedResults[0][1].belief;
+    const highestBelief = (sortedResults[0][1] as { belief: number }).belief;
     const topDiagnoses = sortedResults.filter(
-      ([_, value]) => value.belief === highestBelief
+      ([_, value]) => (value as { belief: number }).belief === highestBelief
     );
 
     // 🔄 Format data untuk dikirim ke backend
     const mainDiagnosis = {
       penyakit: topDiagnoses[0][0],
       solusi: penyakitList.find((p) => p.nama === topDiagnoses[0][0])?.solusi,
-      gejala_terdeteksi: topDiagnoses[0][1].gejalaCocok,
+      gejala_terdeteksi: (topDiagnoses[0][1] as { gejalaCocok: string[] })
+        .gejalaCocok,
       kemungkinan_penyakit_lain: topDiagnoses.slice(1).map(([nama, data]) => ({
         penyakit: nama,
         solusi: penyakitList.find((p) => p.nama === nama)?.solusi,
-        gejala_terdeteksi: data.gejalaCocok,
+        gejala_terdeteksi: (data as { gejalaCocok: string[] }).gejalaCocok,
       })),
     };
 

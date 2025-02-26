@@ -87,14 +87,14 @@ const Dashboard: React.FC = () => {
       setTopPenyakit(
         Object.entries(penyakitFrequency)
           .map(([name, value]) => ({ name, value }))
-          .sort((a, b) => b.value - a.value)
+          .sort((a, b) => (b.value as number) - (a.value as number))
           .slice(0, 5)
       );
 
       setTopGejala(
         Object.entries(gejalaFrequency)
           .map(([name, value]) => ({ name, value }))
-          .sort((a, b) => b.value - a.value)
+          .sort((a: { name: string; value: number }, b: { name: string; value: number }) => b.value - a.value)
           .slice(0, 5)
       );
     } catch (error) {

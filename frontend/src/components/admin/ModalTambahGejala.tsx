@@ -14,8 +14,8 @@ const ModalTambahGejala = ({ isOpen, onClose, onSave }) => {
     if (!formData.nama_gejala || !formData.bobot) {
       return alert("Nama gejala dan bobot harus diisi!");
     }
-    
-    if (formData.bobot < 0 || formData.bobot > 1) {
+
+    if (Number(formData.bobot) < 0 || Number(formData.bobot) > 1) {
       return alert("Bobot harus antara 0 dan 1");
     }
 
@@ -63,9 +63,7 @@ const ModalTambahGejala = ({ isOpen, onClose, onSave }) => {
 
         {/* Bobot Gejala */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">
-            Bobot
-          </label>
+          <label className="block text-gray-700 font-medium mb-1">Bobot</label>
           <input
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F81C7]"
             type="number"
