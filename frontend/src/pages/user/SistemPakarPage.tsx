@@ -73,6 +73,7 @@ const SistemPakarPage: React.FC = () => {
     let hasil: any = {};
     let totalBelief = 0;
 
+    // 🔎 Hitung belief untuk setiap penyakit
     penyakitList.forEach((penyakit) => {
       let belief = 0;
       let gejalaCocok: string[] = [];
@@ -101,42 +102,49 @@ const SistemPakarPage: React.FC = () => {
     const sortedResults = Object.entries(hasil).sort(
       (a, b) => b[1].belief - a[1].belief
     );
-
     setHasilDiagnosa(sortedResults);
 
-    // Siapkan data untuk dikirim ke backend
+    // 🔀 Identifikasi semua penyakit dengan persentase tertinggi yang sama
+    const highestBelief = sortedResults[0][1].belief;
+    const topDiagnoses = sortedResults.filter(
+      ([_, value]) => value.belief === highestBelief
+    );
+
+    // 🔄 Format data untuk dikirim ke backend
+    const mainDiagnosis = {
+      penyakit: topDiagnoses[0][0],
+      solusi: penyakitList.find((p) => p.nama === topDiagnoses[0][0])?.solusi,
+      gejala_terdeteksi: topDiagnoses[0][1].gejalaCocok,
+      kemungkinan_penyakit_lain: topDiagnoses.slice(1).map(([nama, data]) => ({
+        penyakit: nama,
+        solusi: penyakitList.find((p) => p.nama === nama)?.solusi,
+        gejala_terdeteksi: data.gejalaCocok,
+      })),
+    };
+
     const diagnosisData = {
-      id_pasien: localStorage.getItem("id_pasien"), // Pastikan ini ada di localStorage
+      id_pasien: localStorage.getItem("id_pasien"),
       nama_kucing: kucingData.nama,
       jenis_kelamin: kucingData.jenisKelamin,
       usia: kucingData.usia,
       warna_bulu: kucingData.warnaBulu,
-      hasil_diagnosis: {
-        penyakit: sortedResults[0][0], // Penyakit dengan belief tertinggi
-        solusi: penyakitList.find((p) => p.nama === sortedResults[0][0])
-          ?.solusi,
-        gejala_terdeteksi: sortedResults[0][1].gejalaCocok,
-      },
+      hasil_diagnosis: mainDiagnosis,
     };
 
-    // Show loading modal
+    // 🕒 Tampilkan loading modal
     setLoading(true);
-    setDone(false); // Reset checklist before starting the loading
+    setDone(false);
 
     try {
-      // Kirim data diagnosis ke backend
       const response = await axiosInstance.post(
         "/diagnosis/tambah",
         diagnosisData
       );
       console.log("Diagnosis berhasil disimpan:", response.data.message);
 
-      // Hide loading modal after 3 seconds
       setTimeout(() => {
-        setDone(true); // Show "Diagnosis Selesai" after 3 seconds
-        setTimeout(() => {
-          setLoading(false); // Hide loading modal after 2 more seconds
-        }, 2000);
+        setDone(true);
+        setTimeout(() => setLoading(false), 2000);
       }, 3000);
     } catch (error) {
       console.error("Error saving diagnosis:", error);
@@ -286,72 +294,133 @@ const SistemPakarPage: React.FC = () => {
 
         {/* 📋 Hasil Diagnosa */}
         {hasilDiagnosa.length > 0 && (
-          <div className="hasil-diagnosa bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-4 text-[#4F81C7]">
-              Hasil Diagnosa
-            </h2>
-            <div>
-              <div className="mb-4">
-                <strong className="text-lg">{hasilDiagnosa[0][0]}</strong>:{" "}
-                {hasilDiagnosa[0][1].belief.toFixed(2)}%
-                <p>
-                  <strong>Deskripsi:</strong>{" "}
+          <div className="hasil-diagnosa bg-white p-8 rounded-2xl shadow-2xl mb-10">
+            {/* 🏥 Hasil Diagnosa Utama */}
+            <div className="bg-gradient-to-r from-[#4F81C7] to-[#3e6b99] text-white p-6 rounded-lg shadow-md mb-6">
+              <h2 className="text-3xl font-bold mb-2">
+                Diagnosa Utama: {hasilDiagnosa[0][0]}
+              </h2>
+              <div className="w-full bg-gray-300 rounded-full h-4 mt-4">
+                <div
+                  className="bg-green-400 h-4 rounded-full transition-all duration-500"
+                  style={{ width: `${hasilDiagnosa[0][1].belief.toFixed(2)}%` }}
+                />
+              </div>
+              <p className="mt-2 text-sm">
+                Keyakinan:{" "}
+                <strong>{hasilDiagnosa[0][1].belief.toFixed(2)}%</strong>
+              </p>
+            </div>
+
+            {/* 📜 Deskripsi & Solusi */}
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-xl font-semibold text-gray-800 mb-2">
+                  Deskripsi Penyakit
+                </h4>
+                <p className="text-gray-600 leading-relaxed">
                   {
                     penyakitList.find((p) => p.nama === hasilDiagnosa[0][0])
                       ?.deskripsi
                   }
                 </p>
-                <p>
-                  <strong>Solusi:</strong>{" "}
+              </div>
+
+              <div>
+                <h4 className="text-xl font-semibold text-gray-800 mb-2">
+                  Solusi yang Disarankan
+                </h4>
+                <p className="text-gray-600 leading-relaxed">
                   {
                     penyakitList.find((p) => p.nama === hasilDiagnosa[0][0])
                       ?.solusi
                   }
                 </p>
-                <p>
-                  <strong>Gejala terdeteksi:</strong>{" "}
-                  {hasilDiagnosa[0][1].gejalaCocok.join(", ")}
-                </p>
               </div>
 
-              {/* 🔄 Penyakit Lainnya */}
+              {/* 🏷️ Gejala Terdeteksi */}
+              <div>
+                <h4 className="text-xl font-semibold text-gray-800 mb-2">
+                  Gejala Terdeteksi
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {hasilDiagnosa[0][1].gejalaCocok.map(
+                    (gejala: string, index: number) => (
+                      <span
+                        key={index}
+                        className="bg-[#4F81C7] text-white px-3 py-1 rounded-full text-sm shadow-sm"
+                      >
+                        {gejala}
+                      </span>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 🔽 Penyakit Lainnya */}
+            <div className="mt-10">
               <button
-                className="text-blue-600 underline mb-4"
+                className="w-full py-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-center font-semibold text-[#4F81C7] transition duration-300"
                 onClick={() => setShowOtherPenyakit(!showOtherPenyakit)}
               >
                 {showOtherPenyakit
-                  ? "Sembunyikan Penyakit Lainnya"
-                  : "Tampilkan Penyakit Lainnya"}
+                  ? "🔼 Sembunyikan Penyakit Lainnya"
+                  : "🔽 Tampilkan Penyakit Lainnya"}
               </button>
 
               {showOtherPenyakit && (
-                <div className="grid gap-4">
+                <div className="grid gap-6 mt-6">
                   {hasilDiagnosa
                     .slice(1)
-                    .map(([penyakitNama, { belief, gejalaCocok }]) => (
+                    .map(([penyakitNama, { belief, gejalaCocok }], idx) => (
                       <div
-                        key={penyakitNama}
-                        className="bg-gray-50 p-4 rounded-lg shadow-sm"
+                        key={idx}
+                        className="border border-gray-200 rounded-lg p-6 shadow-lg bg-gray-50"
                       >
-                        <strong>{penyakitNama}</strong>: {belief.toFixed(2)}%
-                        <p>
+                        <div className="flex justify-between items-center mb-3">
+                          <h3 className="text-xl font-bold text-gray-700">
+                            {penyakitNama}
+                          </h3>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-500">
+                              Keyakinan: <strong>{belief.toFixed(2)}%</strong>
+                            </p>
+                            <div className="w-full bg-gray-300 rounded-full h-2 mt-1">
+                              <div
+                                className="bg-yellow-400 h-2 rounded-full transition-all duration-500"
+                                style={{ width: `${belief.toFixed(2)}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-gray-600 mb-2">
                           <strong>Deskripsi:</strong>{" "}
                           {
                             penyakitList.find((p) => p.nama === penyakitNama)
                               ?.deskripsi
                           }
                         </p>
-                        <p>
+                        <p className="text-gray-600 mb-2">
                           <strong>Solusi:</strong>{" "}
                           {
                             penyakitList.find((p) => p.nama === penyakitNama)
                               ?.solusi
                           }
                         </p>
-                        <p>
-                          <strong>Gejala terdeteksi:</strong>{" "}
-                          {gejalaCocok.join(", ")}
+                        <p className="text-gray-600 mb-2">
+                          <strong>Gejala Terdeteksi:</strong>
                         </p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {gejalaCocok.map((gejala: string, index: number) => (
+                            <span
+                              key={index}
+                              className="bg-[#4F81C7] text-white px-3 py-1 rounded-full text-sm"
+                            >
+                              {gejala}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     ))}
                 </div>

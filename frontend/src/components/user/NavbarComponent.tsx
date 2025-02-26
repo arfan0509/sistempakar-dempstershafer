@@ -75,7 +75,7 @@ const NavbarComponent: React.FC = () => {
                 }}
                 className="flex items-center gap-2 w-full px-4 py-2 hover:bg-gray-100"
               >
-                <FiActivity /> Diagnosis
+                <FiActivity /> Riwayat Diagnosis
               </button>
 
               <button

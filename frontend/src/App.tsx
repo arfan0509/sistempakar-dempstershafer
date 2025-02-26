@@ -19,6 +19,7 @@ import DataRelasiGejala from "./pages/admin/DataRelasiGejala";
 import AdminSidebar from "./components/admin/AdminSidebar";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
 import ProfilePage from "./pages/user/ProfilePage";
+import RiwayatDiagnosisPage from "./pages/user/RiwayatDiagnosisPage";
 
 const LoadingScreen = () => (
   <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -77,6 +78,14 @@ function App() {
             element={
               <PrivateRoutePasien>
                 <ProfilePage />
+              </PrivateRoutePasien>
+            }
+          />
+          <Route
+            path="/riwayat-diagnosis"
+            element={
+              <PrivateRoutePasien>
+                <RiwayatDiagnosisPage />
               </PrivateRoutePasien>
             }
           />

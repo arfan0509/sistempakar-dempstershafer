@@ -1,5 +1,5 @@
 const express = require("express");
-const { verifyToken, pasienOnly, adminOnly } = require("../middleware/authMiddleware"); // Import middleware
+const { verifyToken, pasienOnly, adminOnly } = require("../middleware/authMiddleware");
 const { tambahDiagnosis, getAllDiagnosis, getDiagnosisByPasienId, updateDiagnosis, deleteDiagnosis } = require("../controllers/diagnosisController");
 
 const router = express.Router();
@@ -11,12 +11,12 @@ router.post("/tambah", verifyToken, pasienOnly, tambahDiagnosis);
 router.get("/", getAllDiagnosis);
 
 // ✅ Get Diagnosis berdasarkan ID Pasien (Bisa diakses tanpa token)
-router.get("/diagnosis/:id_pasien", getDiagnosisByPasienId);
+router.get("/:id_pasien", getDiagnosisByPasienId);  // 🔥 Ubah di sini
 
 // ✅ Update Diagnosis (Hanya Admin yang bisa mengakses)
-router.put("/diagnosis/:id", verifyToken, adminOnly, updateDiagnosis);
+router.put("/:id", verifyToken, adminOnly, updateDiagnosis);
 
 // ✅ Delete Diagnosis (Hanya Admin yang bisa mengakses)
-router.delete("/diagnosis/:id", verifyToken, adminOnly, deleteDiagnosis);
+router.delete("/:id", verifyToken, adminOnly, deleteDiagnosis);
 
 module.exports = router;
