@@ -232,7 +232,7 @@ const DataGejala = () => {
             currentPage === 1 ? "bg-gray-300" : "bg-[#4F81C7] text-white hover:bg-[#2E5077]"
           }`}
         >
-          Sebelumnya
+          ⮜
         </button>
         <span className="px-4 py-1 bg-gray-100 rounded-md">
           Halaman {currentPage} dari {totalPages}
@@ -244,7 +244,7 @@ const DataGejala = () => {
             currentPage === totalPages ? "bg-gray-300" : "bg-[#4F81C7] text-white hover:bg-[#2E5077]"
           }`}
         >
-          Berikutnya
+          ⮞
         </button>
       </div>
 

@@ -20,6 +20,7 @@ import AdminSidebar from "./components/admin/AdminSidebar";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
 import ProfilePage from "./pages/user/ProfilePage";
 import RiwayatDiagnosisPage from "./pages/user/RiwayatDiagnosisPage";
+import RiwayatDiagnosisAdminPage from "./pages/admin/RiwayatDiagnosisAdmin";
 
 const LoadingScreen = () => (
   <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -128,6 +129,16 @@ function App() {
               <PrivateRouteAdmin>
                 <AdminSidebar>
                   <DataRelasiGejala />
+                </AdminSidebar>
+              </PrivateRouteAdmin>
+            }
+          />
+          <Route
+            path="/riwayatdiagnosis-admin"
+            element={
+              <PrivateRouteAdmin>
+                <AdminSidebar>
+                  <RiwayatDiagnosisAdminPage />
                 </AdminSidebar>
               </PrivateRouteAdmin>
             }

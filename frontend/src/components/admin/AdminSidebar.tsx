@@ -113,9 +113,14 @@ const Sidebar = ({
               <FiBookOpen className="mr-2" /> Rule Dempster Shafer
             </Link>
           </li>
-
           <li className="p-2 hover:bg-[#3A6BA8] flex items-center">
-            <FiClock className="mr-2" /> Riwayat
+            <Link
+              to="/riwayatdiagnosis-admin"
+              className="flex items-center text-white w-full"
+              onClick={onClose} // Menutup sidebar setelah diklik
+            >
+              <FiClock className="mr-2" /> Riwayat Diagnosis Kucing
+            </Link>
           </li>
 
           {/* Tombol Logout */}
@@ -149,11 +154,7 @@ const AdminSidebar = ({ children }: { children: React.ReactNode }) => {
           >
             <FiMenu size={24} />
           </button>
-          <img
-            src="/assets/logo-admin.svg"
-            alt="Logo"
-            className="h-8 w-auto"
-          />
+          <img src="/assets/logo-admin.svg" alt="Logo" className="h-8 w-auto" />
           <span className="text-lg font-semibold">Admin Menu</span>
         </div>
 

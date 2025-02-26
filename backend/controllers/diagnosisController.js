@@ -1,4 +1,4 @@
-const Diagnosis = require("../models/Diagnosis");
+const { Diagnosis, Pasien } = require("../models"); // ✅ Import Pasien dari index.js
 
 // ✅ Tambah Diagnosis (Create)
 exports.tambahDiagnosis = async (req, res) => {
@@ -35,7 +35,14 @@ exports.tambahDiagnosis = async (req, res) => {
 // ✅ Get Semua Diagnosis (Read All)
 exports.getAllDiagnosis = async (req, res) => {
   try {
-    const diagnosis = await Diagnosis.findAll();
+    const diagnosis = await Diagnosis.findAll({
+      include: [
+        {
+          model: Pasien,
+          attributes: ["nama", "alamat", "no_telp"], // 📝 Ambil data pasien yang dibutuhkan
+        },
+      ],
+    });
     res.json(diagnosis);
   } catch (error) {
     res.status(500).json({ error: error.message });
