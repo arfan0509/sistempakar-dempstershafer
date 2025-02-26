@@ -15,7 +15,7 @@ const RiwayatDiagnosisPage: React.FC = () => {
   const [diagnosisList, setDiagnosisList] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const [sortOrder, setSortOrder] = useState<string>("baru"); // ⭐️ Filter default: Terbaru
+  const [sortOrder, setSortOrder] = useState<string>("baru");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,9 +34,8 @@ const RiwayatDiagnosisPage: React.FC = () => {
       }
     };
     fetchDiagnosis();
-  }, [sortOrder]); // ⏳ Akan di-fetch ulang saat sortOrder berubah
+  }, [sortOrder]);
 
-  // 🔄 Fungsi untuk mengurutkan diagnosis
   const sortDiagnoses = (data: any[], order: string) => {
     return data.sort((a, b) =>
       order === "baru"
@@ -59,7 +58,7 @@ const RiwayatDiagnosisPage: React.FC = () => {
     <>
       <NavbarComponent />
       <div className="container mx-auto pt-20 px-4 sm:px-6 lg:px-8">
-        {/* 🔙 Tombol Kembali */}
+        {/* 🔙 Tombol Kembali dan Filter */}
         <div className="mb-6 flex justify-between items-center">
           <button
             onClick={() => navigate("/sistem-pakar")}
@@ -68,8 +67,6 @@ const RiwayatDiagnosisPage: React.FC = () => {
             <FiArrowLeft className="mr-2" size={20} />
             Kembali
           </button>
-
-          {/* 🔽 Filter Urutan */}
           <div className="flex items-center gap-2">
             <label className="text-gray-700 font-medium">Urutkan:</label>
             <select
@@ -142,7 +139,6 @@ const RiwayatDiagnosisPage: React.FC = () => {
                     <FaStethoscope className="mr-2" />
                     {diagnosis.hasil_diagnosis.penyakit}
                   </h3>
-                  {/* 🖨️ Tombol Cetak */}
                   <button
                     onClick={() => handlePrint(diagnosis)}
                     className="bg-white text-[#4F81C7] rounded-full p-2 shadow hover:bg-gray-200 transition"
@@ -170,6 +166,50 @@ const RiwayatDiagnosisPage: React.FC = () => {
                     )}
                   </div>
                 </div>
+
+                {/* 🌟 Kemungkinan Penyakit Lain */}
+                {diagnosis.hasil_diagnosis.kemungkinan_penyakit_lain &&
+                  diagnosis.hasil_diagnosis.kemungkinan_penyakit_lain.length >
+                    0 && (
+                    <div className="mt-6">
+                      <button
+                        onClick={() => toggleDropdown(index)}
+                        className="w-full flex justify-between items-center text-[#4F81C7] font-semibold text-lg bg-gray-100 py-2 px-4 rounded-lg hover:bg-gray-200 transition"
+                      >
+                        Kemungkinan Penyakit Lain
+                        {expandedIndex === index ? (
+                          <FiChevronUp size={20} />
+                        ) : (
+                          <FiChevronDown size={20} />
+                        )}
+                      </button>
+
+                      {expandedIndex === index && (
+                        <div className="mt-4 space-y-4">
+                          {diagnosis.hasil_diagnosis.kemungkinan_penyakit_lain.map(
+                            (penyakit: any, idx: number) => (
+                              <div
+                                key={idx}
+                                className="bg-gray-100 p-4 rounded-lg shadow-sm"
+                              >
+                                <h5 className="text-lg font-semibold text-[#4F81C7] flex items-center">
+                                  <FaHeartbeat className="mr-2" />
+                                  {penyakit.penyakit}
+                                </h5>
+                                <p className="text-gray-600 mt-2">
+                                  <strong>Gejala Terdeteksi:</strong>{" "}
+                                  {penyakit.gejala_terdeteksi.join(", ")}
+                                </p>
+                                <p className="text-gray-600">
+                                  <strong>Solusi:</strong> {penyakit.solusi}
+                                </p>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                 {/* 🕒 Tanggal & Waktu */}
                 <div className="mt-6 text-sm text-gray-500 flex items-center justify-start space-x-2">
