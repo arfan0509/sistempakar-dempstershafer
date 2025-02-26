@@ -123,10 +123,10 @@ const RiwayatDiagnosisAdmin: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-6 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl font-bold text-[#4F81C7] mb-6">
-        Riwayat Diagnosis (Admin)
-      </h2>
+    <div className="flex-1 p-2 min-h-screen">
+      <h1 className="text-3xl font-bold text-[#4F81C7] mb-6">
+        Riwayat Diagnosis
+      </h1>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="flex gap-2">
           <input

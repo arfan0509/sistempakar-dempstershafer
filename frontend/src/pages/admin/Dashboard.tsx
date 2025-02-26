@@ -107,7 +107,7 @@ const Dashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-2 min-h-screen">
       <h1 className="text-3xl font-bold text-[#4F81C7] mb-6">Dashboard Admin</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[

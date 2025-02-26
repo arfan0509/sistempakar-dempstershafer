@@ -139,7 +139,7 @@ const DataPenyakit = () => {
 
   return (
     <div className="p-2 pt-4 w-full">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-4">
+      <h1 className="text-3xl font-bold text-[#4F81C7] mb-6">
         Data Penyakit dan Solusi
       </h1>
 

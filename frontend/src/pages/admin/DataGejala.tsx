@@ -122,7 +122,9 @@ const DataGejala = () => {
 
   return (
     <div className="p-2 pt-4 w-full">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-4">Data Gejala</h1>
+      <h1 className="text-3xl font-bold text-[#4F81C7] mb-6">
+        Data Gejala dan Bobot
+      </h1>
 
       {/* 🔍 Search, Filter & Data Per Halaman */}
       <div className="flex flex-col md:flex-row gap-4 mb-4 items-center w-full">
